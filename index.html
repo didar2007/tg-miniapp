@@ -1,35 +1,73 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Мой магазин</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Магазин</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+body{font-family:Arial;margin:0;background:#f4f6f8}
+header{padding:12px;background:#fff;font-weight:700}
+.tabs{display:flex;gap:10px;padding:10px}
+.tab{background:#e2e8f0;padding:8px 12px;border-radius:10px;cursor:pointer}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
+.card{background:#fff;padding:10px;border-radius:12px}
+.price{font-weight:bold;margin:6px 0}
+button{width:100%;padding:8px;border:0;border-radius:10px;background:#3b82f6;color:#fff}
+.cart{position:fixed;bottom:0;width:100%;background:#fff;padding:10px;border-top:1px solid #ccc}
+</style>
 </head>
 
-<body style="font-family: Arial; padding: 16px;">
-  <h2>Мой магазин</h2>
-  <p>Если ты это видишь внутри Telegram — Mini App работает.</p>
+<body>
+<header>Магазин</header>
 
-  <button id="btn" style="padding:12px 16px; font-size:16px;">
-    Проверка
-  </button>
+<div class="tabs">
+  <div class="tab" onclick="load('waka')">WAKA</div>
+  <div class="tab" onclick="load('elf')">ELF BAR</div>
+</div>
 
-  <p id="info" style="margin-top:12px; color:#555;"></p>
+<div class="grid" id="products"></div>
 
-  <script>
-    const tg = window.Telegram?.WebApp;
+<div class="cart">
+  🛒 В корзине: <span id="count">0</span> товаров
+</div>
 
-    if (tg) {
-      tg.ready();
-      document.getElementById("info").innerText =
-        "Открыто в Telegram. User: " + (tg.initDataUnsafe?.user?.first_name || "не найден");
-    } else {
-      document.getElementById("info").innerText =
-        "Открыто НЕ в Telegram (просто браузер).";
-    }
+<script>
+const tg = window.Telegram?.WebApp;
+if(tg) tg.ready();
 
-    document.getElementById("btn").onclick = () => alert("Кнопка работает!");
-  </script>
+let cart = [];
+
+const data = {
+  waka: [
+    {id:1, title:"10000 Вишневая шипучка", price:13990},
+    {id:2, title:"10000 Киви Маракуйя Гуава", price:13990}
+  ],
+  elf: [
+    {id:3, title:"ELF BAR Клубника", price:14990},
+    {id:4, title:"ELF BAR Манго", price:14990}
+  ]
+};
+
+function load(cat){
+  const box = document.getElementById("products");
+  box.innerHTML="";
+  data[cat].forEach(p=>{
+    box.innerHTML+=`
+      <div class="card">
+        <div>${p.title}</div>
+        <div class="price">₸${p.price}</div>
+        <button onclick="add(${p.id})">В корзину</button>
+      </div>`;
+  });
+}
+
+function add(id){
+  cart.push(id);
+  document.getElementById("count").innerText = cart.length;
+}
+
+load('waka');
+</script>
 </body>
 </html>
