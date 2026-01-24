@@ -33,11 +33,15 @@ header{padding:12px;background:#fff;font-weight:700}
 <div class="grid" id="products"></div>
 
 <div class="cart">
-  <div class="cartline">
-    <div>🛒 В корзине: <span id="count">0</span> товаров</div>
-    <button class="btn" style="width:auto; padding:10px 14px" onclick="checkout()">Оформить заказ</button>
-  </div>
+  <div>🛒 В корзине: <span id="count">0</span></div>
+
+  <input id="address" placeholder="Введите адрес доставки" 
+  style="width:100%;padding:8px;margin-top:6px;border-radius:8px;border:1px solid #ccc">
+
+  <button onclick="checkout()">Оформить заказ</button>
 </div>
+
+
 
 <script>
 const tg = window.Telegram?.WebApp;
@@ -101,14 +105,14 @@ function load(cat){
       <div class="card">
         <div>WAKA ${cat.replace("waka","")} — ${name}</div>
         <div class="price">₸${price}</div>
-        <button class="btn" onclick="add('${cat}-${index}')">В корзину</button>
+        <button class="btn" onclick="add('WAKA ${cat.replace("waka","")} — ${name}')">В корзину</button>
       </div>`;
   });
 }
 
 
-function add(id){
-  cart.push(id);
+function add(name){
+  cart.push(name);
   document.getElementById("count").innerText = cart.length;
 }
 
@@ -117,14 +121,26 @@ function checkout(){
     alert("Корзина пуста");
     return;
   }
-  // отправляем боту текст заказа (пока простой)
-  const orderText = "Новый заказ. Товаров: " + cart.length;
-  tg.sendData(orderText);
+
+  const address = document.getElementById("address").value;
+  if(address.length < 5){
+    alert("Введите адрес доставки");
+    return;
+  }
+
+  const order = {
+    address: address,
+    items: cart
+  };
+
+  tg.sendData(JSON.stringify(order));
   tg.close();
 }
+
 
 load('waka');
 </script>
 </body>
 </html>
+
 
