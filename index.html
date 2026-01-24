@@ -9,14 +9,14 @@
 <style>
 body{font-family:Arial;margin:0;background:#f4f6f8}
 header{padding:12px;background:#fff;font-weight:700}
-.tabs{display:flex;gap:10px;padding:10px}
-.tab{background:#e2e8f0;padding:8px 12px;border-radius:10px;cursor:pointer}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;padding-bottom:90px}
+.tabs{display:flex;gap:10px;padding:10px;overflow:auto}
+.tab{background:#e2e8f0;padding:8px 12px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;padding-bottom:170px}
 .card{background:#fff;padding:10px;border-radius:12px}
 .price{font-weight:bold;margin:6px 0}
-.btn{width:100%;padding:10px;border:0;border-radius:10px;background:#3b82f6;color:#fff;margin-top:6px}
+.btn{width:100%;padding:10px;border:0;border-radius:10px;background:#3b82f6;color:#fff;margin-top:6px;cursor:pointer}
 .cart{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:10px;border-top:1px solid #ccc}
-.cartline{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.small{font-size:12px;color:#64748b;margin-top:6px}
 </style>
 </head>
 
@@ -29,28 +29,31 @@ header{padding:12px;background:#fff;font-weight:700}
   <div class="tab" onclick="load('waka10000')">WAKA 10000</div>
 </div>
 
-
 <div class="grid" id="products"></div>
 
 <div class="cart">
-  <div>🛒 В корзине: <span id="count">0</span></div>
+  <div>🛒 В корзине: <span id="count">0</span> · Итого: <span id="total">0</span> ₸</div>
 
-  <input id="address" placeholder="Введите адрес доставки" 
-  style="width:100%;padding:8px;margin-top:6px;border-radius:8px;border:1px solid #ccc">
+  <input id="address" placeholder="Введите адрес доставки (город, улица, дом, кв.)"
+         style="width:100%;padding:10px;margin-top:8px;border-radius:10px;border:1px solid #ccc">
 
-  <button onclick="checkout()">Оформить заказ</button>
+  <button class="btn" onclick="checkout()">Оформить заказ</button>
+
+  <div class="small">После оформления заказ отправится админу в Telegram.</div>
 </div>
-
-
 
 <script>
 const tg = window.Telegram?.WebApp;
-if(tg) tg.ready();
+if (tg) tg.ready();
 
-let cart = []; // будем хранить id товаров
+/*
+Корзина: объект по ключу товара
+cart[key] = { title, model, flavor, price, qty }
+*/
+let cart = {};
 
+// Каталог вкусов
 const data = {
-
   waka6000: [
     "Клубника виноград",
     "Газированная вишня лайм",
@@ -61,7 +64,6 @@ const data = {
     "Чупс клубника малина",
     "Арбузная жвачка"
   ],
-
   waka8000: [
     "Арбуз",
     "Мята",
@@ -72,7 +74,6 @@ const data = {
     "Лимонная кола",
     "Морская соль лимон"
   ],
-
   waka10000: [
     "Клубника банан",
     "Свежая мята",
@@ -87,60 +88,106 @@ const data = {
     "Виноград яблоко",
     "Вишнёво ягодный лёд"
   ]
-
 };
 
+// Цены по модели
+function getPrice(cat){
+  if(cat === "waka6000") return 9990;
+  if(cat === "waka8000") return 10990;
+  if(cat === "waka10000") return 12990;
+  return 0;
+}
 
+// Обновление счётчиков корзины
+function updateCartUI(){
+  const items = Object.values(cart);
+  const totalQty = items.reduce((s, it) => s + it.qty, 0);
+  const totalSum = items.reduce((s, it) => s + it.qty * it.price, 0);
+
+  document.getElementById("count").innerText = totalQty;
+  document.getElementById("total").innerText = totalSum;
+}
+
+// Добавление в корзину
+function addToCart(item){
+  const key = item.key;
+  if(cart[key]) {
+    cart[key].qty += 1;
+  } else {
+    cart[key] = { ...item, qty: 1 };
+  }
+  updateCartUI();
+}
+
+// Рендер товаров
 function load(cat){
   const box = document.getElementById("products");
-  box.innerHTML="";
+  box.innerHTML = "";
 
-  let price = 0;
-  if(cat === "waka6000") price = 9990;
-  if(cat === "waka8000") price = 10990;
-  if(cat === "waka10000") price = 12990;
+  const price = getPrice(cat);
+  const model = cat.replace("waka",""); // 6000/8000/10000
 
-  data[cat].forEach((name, index)=>{
+  data[cat].forEach((flavor, index) => {
+    const title = `WAKA ${model}`;
+    const key = `${cat}-${index}`;
+
     box.innerHTML += `
       <div class="card">
-        <div>WAKA ${cat.replace("waka","")} — ${name}</div>
+        <div>${title} — ${flavor}</div>
         <div class="price">₸${price}</div>
-        <button class="btn" onclick="add('WAKA ${cat.replace("waka","")} — ${name}')">В корзину</button>
-      </div>`;
+        <button class="btn" onclick="addToCart({
+          key: '${key}',
+          title: '${title}',
+          model: '${model}',
+          flavor: '${flavor}',
+          price: ${price}
+        })">В корзину</button>
+      </div>
+    `;
   });
 }
 
-
-function add(name){
-  cart.push(name);
-  document.getElementById("count").innerText = cart.length;
-}
-
+// Оформление заказа (отправка JSON в бота)
 function checkout(){
-  if(cart.length === 0){
+  if(!tg){
+    alert("Открой магазин внутри Telegram");
+    return;
+  }
+
+  const items = Object.values(cart);
+  if(items.length === 0){
     alert("Корзина пуста");
     return;
   }
 
-  const address = document.getElementById("address").value;
+  const address = document.getElementById("address").value.trim();
   if(address.length < 5){
     alert("Введите адрес доставки");
     return;
   }
 
+  const total = items.reduce((s, it) => s + it.qty * it.price, 0);
+
   const order = {
+    type: "order",
     address: address,
-    items: cart
+    items: items.map(it => ({
+      title: it.title,
+      model: it.model,
+      flavor: it.flavor,
+      price: it.price,
+      qty: it.qty
+    })),
+    total: total
   };
 
   tg.sendData(JSON.stringify(order));
   tg.close();
 }
 
-
-load('waka');
+// стартовая категория
+load('waka6000');
+updateCartUI();
 </script>
 </body>
 </html>
-
-
