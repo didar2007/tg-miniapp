@@ -24,9 +24,11 @@ header{padding:12px;background:#fff;font-weight:700}
 <header>Магазин</header>
 
 <div class="tabs">
-  <div class="tab" onclick="load('waka')">WAKA</div>
-  <div class="tab" onclick="load('elf')">ELF BAR</div>
+  <div class="tab" onclick="load('waka6000')">WAKA 6000</div>
+  <div class="tab" onclick="load('waka8000')">WAKA 8000</div>
+  <div class="tab" onclick="load('waka10000')">WAKA 10000</div>
 </div>
+
 
 <div class="grid" id="products"></div>
 
@@ -44,28 +46,66 @@ if(tg) tg.ready();
 let cart = []; // будем хранить id товаров
 
 const data = {
-  waka: [
-    {id:1, title:"10000 Вишневая шипучка", price:13990},
-    {id:2, title:"10000 Киви Маракуйя Гуава", price:13990}
+
+  waka6000: [
+    "Клубника виноград",
+    "Газированная вишня лайм",
+    "Мятная черника",
+    "Ягодный микс",
+    "Кислая клубника",
+    "Виноградный морс",
+    "Чупс клубника малина",
+    "Арбузная жвачка"
   ],
-  elf: [
-    {id:3, title:"ELF BAR Клубника", price:14990},
-    {id:4, title:"ELF BAR Манго", price:14990}
+
+  waka8000: [
+    "Арбуз",
+    "Мята",
+    "Вишня",
+    "Черника клюква вишня",
+    "Сакура виноград",
+    "Клубника малина",
+    "Лимонная кола",
+    "Морская соль лимон"
+  ],
+
+  waka10000: [
+    "Клубника банан",
+    "Свежая мята",
+    "Сакура виноград",
+    "Черная вишня",
+    "Черника клюква вишня",
+    "Жевательные резинки",
+    "Газированная ягода кислая",
+    "Мистер блю",
+    "Яблочный взрыв",
+    "Арбуз",
+    "Виноград яблоко",
+    "Вишнёво ягодный лёд"
   ]
+
 };
+
 
 function load(cat){
   const box = document.getElementById("products");
   box.innerHTML="";
-  data[cat].forEach(p=>{
-    box.innerHTML+=`
+
+  let price = 0;
+  if(cat === "waka6000") price = 9990;
+  if(cat === "waka8000") price = 10990;
+  if(cat === "waka10000") price = 12990;
+
+  data[cat].forEach((name, index)=>{
+    box.innerHTML += `
       <div class="card">
-        <div>${p.title}</div>
-        <div class="price">₸${p.price}</div>
-        <button class="btn" onclick="add(${p.id})">В корзину</button>
+        <div>WAKA ${cat.replace("waka","")} — ${name}</div>
+        <div class="price">₸${price}</div>
+        <button class="btn" onclick="add('${cat}-${index}')">В корзину</button>
       </div>`;
   });
 }
+
 
 function add(id){
   cart.push(id);
@@ -87,3 +127,4 @@ load('waka');
 </script>
 </body>
 </html>
+
