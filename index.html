@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Магазин</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <style>
 body{font-family:Arial;margin:0;background:#f4f6f8}
 header{padding:12px;background:#fff;font-weight:700}
@@ -13,7 +14,7 @@ header{padding:12px;background:#fff;font-weight:700}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
 .card{background:#fff;padding:10px;border-radius:12px}
 .price{font-weight:bold;margin:6px 0}
-button{width:100%;padding:8px;border:0;border-radius:10px;background:#3b82f6;color:#fff}
+button{width:100%;padding:8px;border:0;border-radius:10px;background:#3b82f6;color:#fff;margin-top:6px}
 .cart{position:fixed;bottom:0;width:100%;background:#fff;padding:10px;border-top:1px solid #ccc}
 </style>
 </head>
@@ -30,6 +31,7 @@ button{width:100%;padding:8px;border:0;border-radius:10px;background:#3b82f6;col
 
 <div class="cart">
   🛒 В корзине: <span id="count">0</span> товаров
+  <button onclick="checkout()">Оформить заказ</button>
 </div>
 
 <script>
@@ -65,6 +67,17 @@ function load(cat){
 function add(id){
   cart.push(id);
   document.getElementById("count").innerText = cart.length;
+}
+
+function checkout(){
+  if(cart.length === 0){
+    alert("Корзина пуста");
+    return;
+  }
+
+  const orderText = "Новый заказ:\nТоваров: " + cart.length;
+  tg.sendData(orderText); // отправка в бот
+  tg.close(); // закрыть миниапп
 }
 
 load('waka');
