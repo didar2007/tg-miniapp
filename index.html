@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Мой магазин</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+
+<body style="font-family: Arial; padding: 16px;">
+  <h2>Мой магазин</h2>
+  <p>Если ты это видишь внутри Telegram — Mini App работает.</p>
+
+  <button id="btn" style="padding:12px 16px; font-size:16px;">
+    Проверка
+  </button>
+
+  <p id="info" style="margin-top:12px; color:#555;"></p>
+
+  <script>
+    const tg = window.Telegram?.WebApp;
+
+    if (tg) {
+      tg.ready();
+      document.getElementById("info").innerText =
+        "Открыто в Telegram. User: " + (tg.initDataUnsafe?.user?.first_name || "не найден");
+    } else {
+      document.getElementById("info").innerText =
+        "Открыто НЕ в Telegram (просто браузер).";
+    }
+
+    document.getElementById("btn").onclick = () => alert("Кнопка работает!");
+  </script>
+</body>
+</html>
