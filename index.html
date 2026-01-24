@@ -11,11 +11,12 @@ body{font-family:Arial;margin:0;background:#f4f6f8}
 header{padding:12px;background:#fff;font-weight:700}
 .tabs{display:flex;gap:10px;padding:10px}
 .tab{background:#e2e8f0;padding:8px 12px;border-radius:10px;cursor:pointer}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;padding-bottom:90px}
 .card{background:#fff;padding:10px;border-radius:12px}
 .price{font-weight:bold;margin:6px 0}
-button{width:100%;padding:8px;border:0;border-radius:10px;background:#3b82f6;color:#fff;margin-top:6px}
-.cart{position:fixed;bottom:0;width:100%;background:#fff;padding:10px;border-top:1px solid #ccc}
+.btn{width:100%;padding:10px;border:0;border-radius:10px;background:#3b82f6;color:#fff;margin-top:6px}
+.cart{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:10px;border-top:1px solid #ccc}
+.cartline{display:flex;justify-content:space-between;align-items:center;gap:10px}
 </style>
 </head>
 
@@ -30,15 +31,17 @@ button{width:100%;padding:8px;border:0;border-radius:10px;background:#3b82f6;col
 <div class="grid" id="products"></div>
 
 <div class="cart">
-  🛒 В корзине: <span id="count">0</span> товаров
-  <button onclick="checkout()">Оформить заказ</button>
+  <div class="cartline">
+    <div>🛒 В корзине: <span id="count">0</span> товаров</div>
+    <button class="btn" style="width:auto; padding:10px 14px" onclick="checkout()">Оформить заказ</button>
+  </div>
 </div>
 
 <script>
 const tg = window.Telegram?.WebApp;
 if(tg) tg.ready();
 
-let cart = [];
+let cart = []; // будем хранить id товаров
 
 const data = {
   waka: [
@@ -59,7 +62,7 @@ function load(cat){
       <div class="card">
         <div>${p.title}</div>
         <div class="price">₸${p.price}</div>
-        <button onclick="add(${p.id})">В корзину</button>
+        <button class="btn" onclick="add(${p.id})">В корзину</button>
       </div>`;
   });
 }
@@ -74,10 +77,10 @@ function checkout(){
     alert("Корзина пуста");
     return;
   }
-
-  const orderText = "Новый заказ:\nТоваров: " + cart.length;
-  tg.sendData(orderText); // отправка в бот
-  tg.close(); // закрыть миниапп
+  // отправляем боту текст заказа (пока простой)
+  const orderText = "Новый заказ. Товаров: " + cart.length;
+  tg.sendData(orderText);
+  tg.close();
 }
 
 load('waka');
