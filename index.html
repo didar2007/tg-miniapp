@@ -21,6 +21,16 @@
   .btn.gray{background:#64748b}
   .btn.red{background:#ef4444}
 
+  .pimg{
+    width:100%;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    background:#f8fafc;
+    border-radius:12px;
+    border:1px solid #e5e7eb;
+    margin-bottom:8px;
+  }
+
   .cart{
     position:fixed;bottom:0;left:0;right:0;
     background:#fff;padding:10px;border-top:1px solid #ccc;
@@ -75,7 +85,7 @@
     <h3 id="welcomeText">Добро пожаловать!</h3>
     <p>Вы в магазине WAKA Nexa</p>
     <button class="btn" onclick="closeWelcome()">Начать покупки</button>
-    <div class="small">Совет: если нажали товар случайно — в корзине есть “−” и “✕”.</div>
+    <div class="small">Если нажали товар случайно — в корзине есть “−” и “✕”.</div>
   </div>
 </div>
 
@@ -176,6 +186,36 @@ const data = {
     "Вишнёво ягодный лёд"
   ]
 };
+
+/*
+  ===== КАРТИНКИ =====
+  Важно: путь должен быть "img/ИМЯФАЙЛА.PNG"
+  Если не найдём — покажем placeholder.
+*/
+const DEFAULT_IMG = "img/placeholder.png"; // создай этот файл или поменяй на существующий
+
+const images = {
+  // пример: "Вкус": "img/файл.PNG"
+  "Яблочный взрыв": "img/apple10.PNG",
+  "Мятная черника": "img/blue-malina-vin10.PNG",
+  "Черника клюква вишня": "img/chern-klu-vish10.PNG",
+  "Свежая мята": "img/fresh-mint6.PNG",
+  "Виноград яблоко": "img/grape-apple10.PNG",
+  "Морская соль лимон": "img/green-grape6.PNG",
+  "Мята": "img/myata10.PNG",
+  "Сакура виноград": "img/sakura-grape10.PNG",
+  "Газированная ягода кислая": "img/srt-soda10.PNG",
+  "Клубника малина": "img/str-mal6.PNG",
+  "Клубника банан": "img/waka10Str-Banana.PNG",
+  "Газированная вишня лайм": "img/vish-lime6.PNG",
+  "Вишня": "img/vishnya10.PNG",
+  "Арбузная жвачка": "img/watermelon6.PNG",
+  "Арбуз": "img/watermelon10.PNG"
+};
+
+function getImageByFlavor(flavor){
+  return images[flavor] || DEFAULT_IMG;
+}
 
 function getPrice(cat){
   if(cat === "waka6000") return 9990;
@@ -279,20 +319,38 @@ function load(cat){
 
   data[cat].forEach((flavor, index) => {
     const key = `${cat}-${index}`;
+    const img = getImageByFlavor(flavor);
+
+    // ВАЖНО: мы НЕ вставляем flavor/title внутрь onclick как текст,
+    // а используем объект data-* и обработчик — так надежнее.
     box.innerHTML += `
       <div class="card">
+        <img class="pimg" src="${img}" alt="${escapeHtml(flavor)}" onerror="this.src='${DEFAULT_IMG}'">
         <div><b>${escapeHtml(title)}</b> — ${escapeHtml(flavor)}</div>
         <div class="price">₸${price}</div>
-        <button class="btn" onclick="addToCart({
-          key: '${key}',
-          title: '${escapeHtml(title)}',
-          model: '${model}',
-          flavor: '${escapeHtml(flavor)}',
-          price: ${price}
-        })">В корзину</button>
+        <button class="btn"
+          data-key="${key}"
+          data-title="${escapeHtml(title)}"
+          data-model="${model}"
+          data-flavor="${escapeHtml(flavor)}"
+          data-price="${price}"
+          onclick="handleAdd(this)">
+          В корзину
+        </button>
       </div>
     `;
   });
+}
+
+function handleAdd(btn){
+  const item = {
+    key: btn.dataset.key,
+    title: btn.dataset.title,
+    model: btn.dataset.model,
+    flavor: btn.dataset.flavor,
+    price: Number(btn.dataset.price)
+  };
+  addToCart(item);
 }
 
 /* ===== Подтверждение заказа ===== */
