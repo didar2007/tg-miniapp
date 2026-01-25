@@ -23,6 +23,43 @@ header{padding:12px;background:#fff;font-weight:700}
 <body>
 <header>Магазин</header>
 
+<div id="welcome" style="
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.6);
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:1000;
+">
+
+  <div style="
+  background:#fff;
+  width:90%;
+  max-width:340px;
+  border-radius:16px;
+  padding:20px;
+  text-align:center;
+  font-family:Arial">
+
+    <h2 id="welcomeText">Добро пожаловать!</h2>
+    <p>Вы в официальном магазине WAKA Nexa</p>
+
+    <button onclick="closeWelcome()" style="
+    margin-top:12px;
+    width:100%;
+    padding:10px;
+    border-radius:10px;
+    border:0;
+    background:#3b82f6;
+    color:#fff;
+    font-weight:bold;">
+      Начать покупки
+    </button>
+
+  </div>
+</div>
+
 <div class="tabs">
   <div class="tab" onclick="load('waka6000')">WAKA 6000</div>
   <div class="tab" onclick="load('waka8000')">WAKA 8000</div>
@@ -46,10 +83,29 @@ header{padding:12px;background:#fff;font-weight:700}
 const tg = window.Telegram?.WebApp;
 if (tg) tg.ready();
 
-/*
-Корзина: объект по ключу товара
-cart[key] = { title, model, flavor, price, qty }
-*/
+/* ===== Приветствие ===== */
+(function initWelcome(){
+  const welcomeEl = document.getElementById("welcome");
+  const welcomeTextEl = document.getElementById("welcomeText");
+
+  // Имя из Telegram
+  const user = tg?.initDataUnsafe?.user;
+  if(user && welcomeTextEl){
+    welcomeTextEl.innerText = "Привет, " + user.first_name + " 👋";
+  }
+
+  // Показывать только один раз на этом устройстве
+  if(localStorage.getItem("welcomed") === "yes" && welcomeEl){
+    welcomeEl.style.display = "none";
+  }
+})();
+
+function closeWelcome(){
+  localStorage.setItem("welcomed", "yes");
+  document.getElementById("welcome").style.display = "none";
+}
+
+/* ===== Корзина: cart[key] = { title, model, flavor, price, qty } ===== */
 let cart = {};
 
 // Каталог вкусов
@@ -189,5 +245,7 @@ function checkout(){
 load('waka6000');
 updateCartUI();
 </script>
+
 </body>
 </html>
+
