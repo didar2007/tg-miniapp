@@ -62,7 +62,6 @@
     box-sizing:border-box;
   }
 
-  /* Модалки */
   .modal-backdrop{
     position:fixed;inset:0;background:rgba(0,0,0,0.6);
     display:none;align-items:center;justify-content:center;z-index:2000;
@@ -149,7 +148,7 @@ function closeWelcome(){
   document.getElementById("welcome").style.display = "none";
 }
 
-/* ===== Данные ===== */
+/* ===== Данные вкусов ===== */
 const data = {
   waka6000: [
     "Клубника виноград",
@@ -187,36 +186,6 @@ const data = {
   ]
 };
 
-/*
-  ===== КАРТИНКИ =====
-  Важно: путь должен быть "img/ИМЯФАЙЛА.PNG"
-  Если не найдём — покажем placeholder.
-*/
-const DEFAULT_IMG = "img/placeholder.png"; // создай этот файл или поменяй на существующий
-
-const images = {
-  // пример: "Вкус": "img/файл.PNG"
-  "Яблочный взрыв": "img/apple10.PNG",
-  "Мятная черника": "img/blue-malina-vin10.PNG",
-  "Черника клюква вишня": "img/chern-klu-vish10.PNG",
-  "Свежая мята": "img/fresh-mint6.PNG",
-  "Виноград яблоко": "img/grape-apple10.PNG",
-  "Морская соль лимон": "img/green-grape6.PNG",
-  "Мята": "img/myata10.PNG",
-  "Сакура виноград": "img/sakura-grape10.PNG",
-  "Газированная ягода кислая": "img/srt-soda10.PNG",
-  "Клубника малина": "img/str-mal6.PNG",
-  "Клубника банан": "img/waka10Str-Banana.PNG",
-  "Газированная вишня лайм": "img/vish-lime6.PNG",
-  "Вишня": "img/vishnya10.PNG",
-  "Арбузная жвачка": "img/watermelon6.PNG",
-  "Арбуз": "img/watermelon10.PNG"
-};
-
-function getImageByFlavor(flavor){
-  return images[flavor] || DEFAULT_IMG;
-}
-
 function getPrice(cat){
   if(cat === "waka6000") return 9990;
   if(cat === "waka8000") return 10990;
@@ -224,9 +193,38 @@ function getPrice(cat){
   return 0;
 }
 
+/* ===== КАРТИНКИ ===== */
+const DEFAULT_IMG = "img/placeholder.png"; // добавь placeholder.png в img/ или поменяй на существующую
+
+// Ключ = ТОЧНОЕ название вкуса из массива data (регистр и пробелы важны)
+const images = {
+  // WAKA 6000 (твои замены)
+  "Клубника виноград": "img/str-grape6.PNG",
+  "Газированная вишня лайм": "img/vish-lime6.PNG",
+  "Мятная черника": "img/blue-malina-vish10.PNG",
+  "Ягодный микс": "img/chern-klu-vish10.PNG",
+  "Кислая клубника": "img/str-soda10.PNG",
+  "Виноградный морс": "img/green-grape6.PNG",
+  "Чупс клубника малина": "img/str-mal6.PNG",
+  "Арбузная жвачка": "img/watermelon6.PNG",
+
+  // WAKA 8000 (твоя замена)
+  "Лимонная кола": "img/str-soda10.PNG",
+
+  // WAKA 10000 (твои замены)
+  "Свежая мята": "img/myata10.PNG",
+  "Черная вишня": "img/vishnya10.PNG",
+  "Жевательные резинки": "img/fruits10.PNG",
+  "Мистер блю": "img/fruits10.PNG",
+  "Вишнёво ягодный лёд": "img/chern-klu-vish10.PNG"
+};
+
+function getImageByFlavor(flavor){
+  return images[flavor] || DEFAULT_IMG;
+}
+
 /* cart[key] = { key, title, model, flavor, price, qty } */
 let cart = {};
-let currentCat = "waka6000";
 let pendingOrder = null;
 
 /* ===== UI helpers ===== */
@@ -282,47 +280,31 @@ function addToCart(item){
   else cart[key] = { ...item, qty: 1 };
   updateCartUI();
 }
-
-function incQty(key){
-  if(cart[key]) cart[key].qty += 1;
-  updateCartUI();
-}
-
+function incQty(key){ if(cart[key]) cart[key].qty += 1; updateCartUI(); }
 function decQty(key){
   if(!cart[key]) return;
   cart[key].qty -= 1;
   if(cart[key].qty <= 0) delete cart[key];
   updateCartUI();
 }
-
-function removeItem(key){
-  if(cart[key]) delete cart[key];
-  updateCartUI();
-}
-
-function clearCart(){
-  cart = {};
-  updateCartUI();
-}
+function removeItem(key){ if(cart[key]) delete cart[key]; updateCartUI(); }
+function clearCart(){ cart = {}; updateCartUI(); }
 
 /* ===== Рендер товаров ===== */
 function load(cat){
-  currentCat = cat;
   setActiveTab(cat);
 
   const box = document.getElementById("products");
   box.innerHTML = "";
 
   const price = getPrice(cat);
-  const model = cat.replace("waka",""); // 6000/8000/10000
+  const model = cat.replace("waka","");
   const title = `WAKA ${model}`;
 
   data[cat].forEach((flavor, index) => {
     const key = `${cat}-${index}`;
     const img = getImageByFlavor(flavor);
 
-    // ВАЖНО: мы НЕ вставляем flavor/title внутрь onclick как текст,
-    // а используем объект data-* и обработчик — так надежнее.
     box.innerHTML += `
       <div class="card">
         <img class="pimg" src="${img}" alt="${escapeHtml(flavor)}" onerror="this.src='${DEFAULT_IMG}'">
@@ -343,38 +325,26 @@ function load(cat){
 }
 
 function handleAdd(btn){
-  const item = {
+  addToCart({
     key: btn.dataset.key,
     title: btn.dataset.title,
     model: btn.dataset.model,
     flavor: btn.dataset.flavor,
     price: Number(btn.dataset.price)
-  };
-  addToCart(item);
+  });
 }
 
 /* ===== Подтверждение заказа ===== */
-function closeConfirm(){
-  document.getElementById("confirm").style.display = "none";
-}
+function closeConfirm(){ document.getElementById("confirm").style.display = "none"; }
 
 function checkout(){
-  if(!tg){
-    alert("Открой магазин внутри Telegram");
-    return;
-  }
+  if(!tg){ alert("Открой магазин внутри Telegram"); return; }
 
   const items = Object.values(cart);
-  if(items.length === 0){
-    alert("Корзина пуста");
-    return;
-  }
+  if(items.length === 0){ alert("Корзина пуста"); return; }
 
   const address = document.getElementById("address").value.trim();
-  if(address.length < 5){
-    alert("Введите адрес доставки");
-    return;
-  }
+  if(address.length < 5){ alert("Введите адрес доставки"); return; }
 
   const total = items.reduce((s, it) => s + it.qty * it.price, 0);
 
