@@ -7,96 +7,36 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-  body{font-family:Arial;margin:0;background:#f4f6f8}
-  header{padding:12px;background:#fff;font-weight:700}
-
-  .tabs{display:flex;gap:10px;padding:10px;overflow:auto}
-  .tab{background:#e2e8f0;padding:8px 12px;border-radius:10px;cursor:pointer;white-space:nowrap}
-  .tab.active{background:#cbd5e1;font-weight:700}
-
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;padding-bottom:260px}
-  .card{background:#fff;padding:10px;border-radius:12px}
-  .price{font-weight:bold;margin:6px 0}
-  .btn{width:100%;padding:10px;border:0;border-radius:10px;background:#3b82f6;color:#fff;margin-top:6px;cursor:pointer}
-  .btn.gray{background:#64748b}
-  .btn.red{background:#ef4444}
-
-  .pimg{
-    width:100%;
-    aspect-ratio: 1 / 1;
-    object-fit: contain;
-    background:#f8fafc;
-    border-radius:12px;
-    border:1px solid #e5e7eb;
-    margin-bottom:8px;
-  }
-
-  .cart{
-    position:fixed;bottom:0;left:0;right:0;
-    background:#fff;padding:10px;border-top:1px solid #ccc;
-  }
-  .small{font-size:12px;color:#64748b;margin-top:6px}
-  .cart-top{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
-  .cart-list{
-    margin-top:8px;max-height:110px;overflow:auto;
-    border:1px solid #e5e7eb;border-radius:12px;padding:8px;background:#f8fafc;
-  }
-  .cart-item{
-    display:flex;justify-content:space-between;gap:8px;
-    padding:6px 0;border-bottom:1px dashed #e5e7eb;
-  }
-  .cart-item:last-child{border-bottom:0}
-  .ci-title{font-size:12px;line-height:1.25;color:#0f172a;flex:1}
-  .ci-right{display:flex;gap:6px;align-items:center}
-  .ci-qty{
-    min-width:34px;text-align:center;font-size:12px;
-    padding:6px 8px;border-radius:10px;background:#e2e8f0;
-  }
-  .ci-btn{
-    width:34px;height:34px;border:0;border-radius:10px;cursor:pointer;
-    background:#e2e8f0;
-  }
-  .ci-btn.del{background:#fee2e2}
-  .input{
-    width:100%;padding:10px;margin-top:8px;border-radius:10px;border:1px solid #ccc;
-    box-sizing:border-box;
-  }
-
-  .modal-backdrop{
-    position:fixed;inset:0;background:rgba(0,0,0,0.6);
-    display:none;align-items:center;justify-content:center;z-index:2000;
-  }
-  .modal{
-    background:#fff;width:92%;max-width:380px;border-radius:16px;padding:16px;
-  }
-  .modal h3{margin:0 0 8px}
-  .modal p{margin:6px 0}
-  .modal-actions{display:flex;gap:10px;margin-top:12px}
+body{font-family:Arial;margin:0;background:#f4f6f8}
+header{padding:12px;background:#fff;font-weight:700}
+.tabs{display:flex;gap:10px;padding:10px;overflow:auto}
+.tab{background:#e2e8f0;padding:8px 12px;border-radius:10px;cursor:pointer}
+.tab.active{background:#cbd5e1;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;padding-bottom:260px}
+.card{background:#fff;padding:10px;border-radius:12px}
+.price{font-weight:bold;margin:6px 0}
+.btn{width:100%;padding:10px;border:0;border-radius:10px;background:#3b82f6;color:#fff;margin-top:6px;cursor:pointer}
+.pimg{width:100%;aspect-ratio:1/1;object-fit:contain;background:#f8fafc;border-radius:12px;border:1px solid #e5e7eb;margin-bottom:8px}
+.cart{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:10px;border-top:1px solid #ccc}
+.small{font-size:12px;color:#64748b;margin-top:6px}
+.cart-list{margin-top:8px;max-height:110px;overflow:auto;border:1px solid #e5e7eb;border-radius:12px;padding:8px;background:#f8fafc}
+.cart-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e5e7eb}
+.ci-btn{width:34px;height:34px;border:0;border-radius:10px;cursor:pointer;background:#e2e8f0}
+.ci-btn.del{background:#fee2e2}
+.input{width:100%;padding:10px;margin-top:8px;border-radius:10px;border:1px solid #ccc}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:2000}
+.modal{background:#fff;width:92%;max-width:380px;border-radius:16px;padding:16px}
 </style>
 </head>
 
 <body>
 <header>Магазин</header>
 
-<!-- Приветствие -->
 <div id="welcome" class="modal-backdrop" style="display:flex;z-index:2500;">
   <div class="modal" style="text-align:center;">
     <h3 id="welcomeText">Добро пожаловать!</h3>
     <p>Вы в магазине WAKA Nexa</p>
     <button class="btn" onclick="closeWelcome()">Начать покупки</button>
-    <div class="small">Если нажали товар случайно — в корзине есть “−” и “✕”.</div>
-  </div>
-</div>
-
-<!-- Подтверждение заказа -->
-<div id="confirm" class="modal-backdrop">
-  <div class="modal">
-    <h3>Подтвердите заказ</h3>
-    <div id="confirmBody" style="font-size:14px;line-height:1.35;"></div>
-    <div class="modal-actions">
-      <button class="btn gray" onclick="closeConfirm()">Назад</button>
-      <button class="btn" onclick="sendOrder()">Отправить</button>
-    </div>
   </div>
 </div>
 
@@ -109,279 +49,89 @@
 <div class="grid" id="products"></div>
 
 <div class="cart">
-  <div class="cart-top">
-    <div>🛒 В корзине: <b><span id="count">0</span></b> · Итого: <b><span id="total">0</span> ₸</b></div>
-    <button class="btn red" style="width:auto;padding:10px 12px;margin-top:0;" onclick="clearCart()">Очистить</button>
-  </div>
-
-  <div class="cart-list" id="cartList">
-    <div class="small">Корзина пуста</div>
-  </div>
-
-  <input id="address" class="input" placeholder="Введите адрес доставки (город, улица, дом, кв.)">
-
+  🛒 <b><span id="count">0</span></b> · Итого: <b><span id="total">0</span> ₸</b>
+  <div class="cart-list" id="cartList"><div class="small">Корзина пуста</div></div>
+  <input id="address" class="input" placeholder="Введите адрес доставки">
   <button class="btn" onclick="checkout()">Оформить заказ</button>
-  <div class="small">После подтверждения заказ отправится админу в Telegram.</div>
 </div>
 
 <script>
 const tg = window.Telegram?.WebApp;
 if (tg) tg.ready();
 
-/* ===== Приветствие (показывать 1 раз) ===== */
-(function initWelcome(){
-  const welcomeEl = document.getElementById("welcome");
-  const welcomeTextEl = document.getElementById("welcomeText");
-
-  const user = tg?.initDataUnsafe?.user;
-  if(user && welcomeTextEl){
-    welcomeTextEl.innerText = "Привет, " + user.first_name + " 👋";
-  }
-
-  if(localStorage.getItem("welcomed") === "yes"){
-    welcomeEl.style.display = "none";
-  }
-})();
-
-function closeWelcome(){
-  localStorage.setItem("welcomed", "yes");
-  document.getElementById("welcome").style.display = "none";
-}
-
-/* ===== Данные вкусов ===== */
 const data = {
-  waka6000: [
-    "Клубника виноград",
-    "Газированная вишня лайм",
-    "Мятная черника",
-    "Ягодный микс",
-    "Кислая клубника",
-    "Виноградный морс",
-    "Чупс клубника малина",
-    "Арбузная жвачка"
-  ],
-  waka8000: [
-    "Арбуз",
-    "Мята",
-    "Вишня",
-    "Черника клюква вишня",
-    "Сакура виноград",
-    "Клубника малина",
-    "Лимонная кола",
-    "Морская соль лимон"
-  ],
-  waka10000: [
-    "Клубника банан",
-    "Свежая мята",
-    "Сакура виноград",
-    "Черная вишня",
-    "Черника клюква вишня",
-    "Жевательные резинки",
-    "Газированная ягода кислая",
-    "Мистер блю",
-    "Яблочный взрыв",
-    "Арбуз",
-    "Виноград яблоко",
-    "Вишнёво ягодный лёд"
-  ]
+  waka6000:["Клубника виноград","Газированная вишня лайм","Мятная черника","Ягодный микс","Кислая клубника","Виноградный морс","Чупс клубника малина","Арбузная жвачка"],
+  waka8000:["Арбуз","Мята","Вишня","Черника клюква вишня","Сакура виноград","Клубника малина","Лимонная кола","Морская соль лимон"],
+  waka10000:["Клубника банан","Свежая мята","Сакура виноград","Черная вишня","Черника клюква вишня","Жевательные резинки","Газированная ягода кислая","Мистер блю","Яблочный взрыв","Арбуз","Виноград яблоко","Вишнёво ягодный лёд"]
 };
 
-function getPrice(cat){
-  if(cat === "waka6000") return 9990;
-  if(cat === "waka8000") return 10990;
-  if(cat === "waka10000") return 12990;
-  return 0;
-}
+const DEFAULT_IMG="img/placeholder.png";
 
-/* ===== КАРТИНКИ ===== */
-const DEFAULT_IMG = "img/placeholder.png"; // добавь placeholder.png в img/ или поменяй на существующую
-
-// Ключ = ТОЧНОЕ название вкуса из массива data (регистр и пробелы важны)
-const images = {
-  // WAKA 6000 (твои замены)
-  "Клубника виноград": "img/str-grape6.PNG",
-  "Газированная вишня лайм": "img/vish-lime6.PNG",
-  "Мятная черника": "img/blue-malina-vish10.PNG",
-  "Ягодный микс": "img/chern-klu-vish10.PNG",
-  "Кислая клубника": "img/str-soda10.PNG",
-  "Виноградный морс": "img/green-grape6.PNG",
-  "Чупс клубника малина": "img/str-mal6.PNG",
-  "Арбузная жвачка": "img/watermelon6.PNG",
-
-  // WAKA 8000 (твоя замена)
-  "Лимонная кола": "img/str-soda10.PNG",
-
-  // WAKA 10000 (твои замены)
-  "Свежая мята": "img/myata10.PNG",
-  "Черная вишня": "img/vishnya10.PNG",
-  "Жевательные резинки": "img/fruits10.PNG",
-  "Мистер блю": "img/fruits10.PNG",
-  "Вишнёво ягодный лёд": "img/chern-klu-vish10.PNG"
+const images={
+"Клубника виноград":"img/str-grape6.PNG",
+"Газированная вишня лайм":"img/vish-lime6.PNG",
+"Мятная черника":"img/blue-malina-vish10.PNG",
+"Ягодный микс":"img/chern-klu-vish10.PNG",
+"Кислая клубника":"img/str-soda10.PNG",
+"Виноградный морс":"img/green-grape6.PNG",
+"Чупс клубника малина":"img/str-mal6.PNG",
+"Арбузная жвачка":"img/watermelon6.PNG",
+"Арбуз":"img/watermelon10.PNG",
+"Мята":"img/myata10.PNG",
+"Вишня":"img/vishnya10.PNG",
+"Черника клюква вишня":"img/chern-klu-vish10.PNG",
+"Сакура виноград":"img/sakura-grape10.PNG",
+"Клубника малина":"img/str-mal6.PNG",
+"Лимонная кола":"img/str-soda10.PNG",
+"Клубника банан":"img/waka10Str-Banana.PNG",
+"Свежая мята":"img/myata10.PNG",
+"Черная вишня":"img/vishnya10.PNG",
+"Жевательные резинки":"img/fruits10.PNG",
+"Газированная ягода кислая":"img/str-soda10.PNG",
+"Мистер блю":"img/fruits10.PNG",
+"Яблочный взрыв":"img/apple10.PNG",
+"Виноград яблоко":"img/grape-apple10.PNG",
+"Вишнёво ягодный лёд":"img/chern-klu-vish10.PNG"
 };
 
-function getImageByFlavor(flavor){
-  return images[flavor] || DEFAULT_IMG;
-}
+function getImage(f){return images[f]||DEFAULT_IMG;}
+function getPrice(c){if(c=="waka6000")return 9990;if(c=="waka8000")return 10990;return 12990;}
 
-/* cart[key] = { key, title, model, flavor, price, qty } */
-let cart = {};
-let pendingOrder = null;
-
-/* ===== UI helpers ===== */
-function setActiveTab(cat){
-  document.querySelectorAll(".tab").forEach(t=>{
-    t.classList.toggle("active", t.dataset.cat === cat);
-  });
-}
+let cart={};
 
 function updateCartUI(){
-  const items = Object.values(cart);
-  const totalQty = items.reduce((s, it) => s + it.qty, 0);
-  const totalSum = items.reduce((s, it) => s + it.qty * it.price, 0);
-
-  document.getElementById("count").innerText = totalQty;
-  document.getElementById("total").innerText = totalSum;
-
-  const list = document.getElementById("cartList");
-  if(items.length === 0){
-    list.innerHTML = `<div class="small">Корзина пуста</div>`;
-    return;
-  }
-
-  list.innerHTML = items.map(it => `
-    <div class="cart-item">
-      <div class="ci-title">
-        <b>${escapeHtml(it.title)}</b> — ${escapeHtml(it.flavor)}<br>
-        <span class="small">₸${it.price} × ${it.qty} = ₸${it.price * it.qty}</span>
-      </div>
-      <div class="ci-right">
-        <button class="ci-btn" onclick="decQty('${it.key}')">−</button>
-        <div class="ci-qty">${it.qty}</div>
-        <button class="ci-btn" onclick="incQty('${it.key}')">+</button>
-        <button class="ci-btn del" onclick="removeItem('${it.key}')">✕</button>
-      </div>
-    </div>
-  `).join("");
+let items=Object.values(cart);
+document.getElementById("count").innerText=items.reduce((s,i)=>s+i.qty,0);
+document.getElementById("total").innerText=items.reduce((s,i)=>s+i.qty*i.price,0);
+let list=document.getElementById("cartList");
+if(!items.length){list.innerHTML="<div class='small'>Корзина пуста</div>";return;}
+list.innerHTML=items.map(i=>`<div class="cart-item"><div>${i.title} — ${i.flavor}<br><span class="small">₸${i.price} × ${i.qty}</span></div><div><button class="ci-btn" onclick="iQ('${i.key}',1)">+</button><button class="ci-btn" onclick="iQ('${i.key}',-1)">−</button><button class="ci-btn del" onclick="rI('${i.key}')">✕</button></div></div>`).join("");
 }
+function iQ(k,d){cart[k].qty+=d;if(cart[k].qty<=0)delete cart[k];updateCartUI();}
+function rI(k){delete cart[k];updateCartUI();}
+function add(btn){let k=btn.dataset.key;if(cart[k])cart[k].qty++;else cart[k]={key:k,title:btn.dataset.title,flavor:btn.dataset.flavor,price:+btn.dataset.price,qty:1};updateCartUI();}
 
-function escapeHtml(s){
-  return String(s)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-
-/* ===== Корзина действия ===== */
-function addToCart(item){
-  const key = item.key;
-  if(cart[key]) cart[key].qty += 1;
-  else cart[key] = { ...item, qty: 1 };
-  updateCartUI();
-}
-function incQty(key){ if(cart[key]) cart[key].qty += 1; updateCartUI(); }
-function decQty(key){
-  if(!cart[key]) return;
-  cart[key].qty -= 1;
-  if(cart[key].qty <= 0) delete cart[key];
-  updateCartUI();
-}
-function removeItem(key){ if(cart[key]) delete cart[key]; updateCartUI(); }
-function clearCart(){ cart = {}; updateCartUI(); }
-
-/* ===== Рендер товаров ===== */
 function load(cat){
-  setActiveTab(cat);
-
-  const box = document.getElementById("products");
-  box.innerHTML = "";
-
-  const price = getPrice(cat);
-  const model = cat.replace("waka","");
-  const title = `WAKA ${model}`;
-
-  data[cat].forEach((flavor, index) => {
-    const key = `${cat}-${index}`;
-    const img = getImageByFlavor(flavor);
-
-    box.innerHTML += `
-      <div class="card">
-        <img class="pimg" src="${img}" alt="${escapeHtml(flavor)}" onerror="this.src='${DEFAULT_IMG}'">
-        <div><b>${escapeHtml(title)}</b> — ${escapeHtml(flavor)}</div>
-        <div class="price">₸${price}</div>
-        <button class="btn"
-          data-key="${key}"
-          data-title="${escapeHtml(title)}"
-          data-model="${model}"
-          data-flavor="${escapeHtml(flavor)}"
-          data-price="${price}"
-          onclick="handleAdd(this)">
-          В корзину
-        </button>
-      </div>
-    `;
-  });
+document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.cat===cat));
+let box=document.getElementById("products");box.innerHTML="";
+let price=getPrice(cat);let title="WAKA "+cat.replace("waka","");
+data[cat].forEach((f,i)=>{
+let key=cat+"-"+i;
+box.innerHTML+=`<div class="card"><img class="pimg" src="${getImage(f)}" onerror="this.src='${DEFAULT_IMG}'"><div><b>${title}</b> — ${f}</div><div class="price">₸${price}</div><button class="btn" data-key="${key}" data-title="${title}" data-flavor="${f}" data-price="${price}" onclick="add(this)">В корзину</button></div>`;
+});
 }
-
-function handleAdd(btn){
-  addToCart({
-    key: btn.dataset.key,
-    title: btn.dataset.title,
-    model: btn.dataset.model,
-    flavor: btn.dataset.flavor,
-    price: Number(btn.dataset.price)
-  });
-}
-
-/* ===== Подтверждение заказа ===== */
-function closeConfirm(){ document.getElementById("confirm").style.display = "none"; }
 
 function checkout(){
-  if(!tg){ alert("Открой магазин внутри Telegram"); return; }
-
-  const items = Object.values(cart);
-  if(items.length === 0){ alert("Корзина пуста"); return; }
-
-  const address = document.getElementById("address").value.trim();
-  if(address.length < 5){ alert("Введите адрес доставки"); return; }
-
-  const total = items.reduce((s, it) => s + it.qty * it.price, 0);
-
-  pendingOrder = {
-    type: "order",
-    address,
-    items: items.map(it => ({
-      title: it.title,
-      model: it.model,
-      flavor: it.flavor,
-      price: it.price,
-      qty: it.qty
-    })),
-    total
-  };
-
-  const lines = pendingOrder.items.map(it =>
-    `• <b>${escapeHtml(it.title)}</b> — ${escapeHtml(it.flavor)} ×${it.qty} = ₸${it.price * it.qty}`
-  ).join("<br>");
-
-  document.getElementById("confirmBody").innerHTML =
-    `<b>Адрес:</b> ${escapeHtml(pendingOrder.address)}<br><br>` +
-    `<b>Товары:</b><br>${lines}<br><br>` +
-    `<b>Итого:</b> ₸${pendingOrder.total}`;
-
-  document.getElementById("confirm").style.display = "flex";
+if(!tg)return alert("Открой в Telegram");
+let items=Object.values(cart);
+if(!items.length)return alert("Корзина пуста");
+let addr=document.getElementById("address").value.trim();
+if(addr.length<5)return alert("Введите адрес");
+tg.sendData(JSON.stringify({address:addr,items,total:items.reduce((s,i)=>s+i.qty*i.price,0)}));
+tg.close();
 }
 
-function sendOrder(){
-  if(!pendingOrder) return;
-  tg.sendData(JSON.stringify(pendingOrder));
-  tg.close();
-}
-
-/* ===== Старт ===== */
-load("waka6000");
-updateCartUI();
+load("waka6000");updateCartUI();
 </script>
 </body>
 </html>
