@@ -68,70 +68,153 @@ const data = {
 const DEFAULT_IMG="img/placeholder.png";
 
 const images={
-"Клубника виноград":"img/str-grape6.PNG",
-"Газированная вишня лайм":"img/vish-lime6.PNG",
-"Мятная черника":"img/blue-malina-vish10.PNG",
-"Ягодный микс":"img/chern-klu-vish10.PNG",
-"Кислая клубника":"img/str-soda10.PNG",
-"Виноградный морс":"img/green-grape6.PNG",
-"Чупс клубника малина":"img/str-mal6.PNG",
-"Арбузная жвачка":"img/watermelon6.PNG",
-"Арбуз":"img/watermelon10.PNG",
-"Мята":"img/myata10.PNG",
-"Вишня":"img/vishnya10.PNG",
-"Черника клюква вишня":"img/chern-klu-vish10.PNG",
-"Сакура виноград":"img/sakura-grape10.PNG",
-"Клубника малина":"img/str-mal6.PNG",
-"Лимонная кола":"img/str-soda10.PNG",
-"Клубника банан":"img/waka10Str-Banana.PNG",
-"Свежая мята":"img/myata10.PNG",
-"Черная вишня":"img/vishnya10.PNG",
-"Жевательные резинки":"img/fruits10.PNG",
-"Газированная ягода кислая":"img/str-soda10.PNG",
-"Мистер блю":"img/fruits10.PNG",
-"Яблочный взрыв":"img/apple10.PNG",
-"Виноград яблоко":"img/grape-apple10.PNG",
-"Вишнёво ягодный лёд":"img/chern-klu-vish10.PNG"
+  "Клубника виноград":"img/str-grape6.PNG",
+  "Газированная вишня лайм":"img/vish-lime6.PNG",
+  "Мятная черника":"img/blue-malina-vish10.PNG",
+  "Ягодный микс":"img/chern-klu-vish10.PNG",
+  "Кислая клубника":"img/str-soda10.PNG",
+  "Виноградный морс":"img/green-grape6.PNG",
+  "Чупс клубника малина":"img/str-mal6.PNG",
+  "Арбузная жвачка":"img/watermelon6.PNG",
+  "Арбуз":"img/watermelon10.PNG",
+  "Мята":"img/myata10.PNG",
+  "Вишня":"img/vishnya10.PNG",
+  "Черника клюква вишня":"img/chern-klu-vish10.PNG",
+  "Сакура виноград":"img/sakura-grape10.PNG",
+  "Клубника малина":"img/str-mal6.PNG",
+  "Лимонная кола":"img/str-soda10.PNG",
+  "Клубника банан":"img/waka10Str-Banana.PNG",
+  "Свежая мята":"img/myata10.PNG",
+  "Черная вишня":"img/vishnya10.PNG",
+  "Жевательные резинки":"img/fruits10.PNG",
+  "Газированная ягода кислая":"img/str-soda10.PNG",
+  "Мистер блю":"img/fruits10.PNG",
+  "Яблочный взрыв":"img/apple10.PNG",
+  "Виноград яблоко":"img/grape-apple10.PNG",
+  "Вишнёво ягодный лёд":"img/chern-klu-vish10.PNG"
 };
 
-function getImage(f){return images[f]||DEFAULT_IMG;}
-function getPrice(c){if(c=="waka6000")return 9990;if(c=="waka8000")return 10990;return 12990;}
+function getImage(f){ return images[f] || DEFAULT_IMG; }
+function getPrice(c){
+  if (c=="waka6000") return 9990;
+  if (c=="waka8000") return 10990;
+  return 12990;
+}
 
-let cart={};
+let cart = {};
+
+// --- FIX: закрытие приветственного окна ---
+function closeWelcome(){
+  const w = document.getElementById("welcome");
+  if (w) w.style.display = "none";
+
+  // Небольшой бонус для WebApp: раскрыть по высоте (не обязательно, но полезно)
+  if (tg && typeof tg.expand === "function") tg.expand();
+}
+
+// Закрытие по клику на фон (если нажали не на саму модалку)
+document.getElementById("welcome").addEventListener("click", (e) => {
+  if (e.target && e.target.id === "welcome") closeWelcome();
+});
+
+// Закрытие по Esc (удобно при тесте)
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeWelcome();
+});
 
 function updateCartUI(){
-let items=Object.values(cart);
-document.getElementById("count").innerText=items.reduce((s,i)=>s+i.qty,0);
-document.getElementById("total").innerText=items.reduce((s,i)=>s+i.qty*i.price,0);
-let list=document.getElementById("cartList");
-if(!items.length){list.innerHTML="<div class='small'>Корзина пуста</div>";return;}
-list.innerHTML=items.map(i=>`<div class="cart-item"><div>${i.title} — ${i.flavor}<br><span class="small">₸${i.price} × ${i.qty}</span></div><div><button class="ci-btn" onclick="iQ('${i.key}',1)">+</button><button class="ci-btn" onclick="iQ('${i.key}',-1)">−</button><button class="ci-btn del" onclick="rI('${i.key}')">✕</button></div></div>`).join("");
+  let items = Object.values(cart);
+  document.getElementById("count").innerText = items.reduce((s,i)=>s+i.qty,0);
+  document.getElementById("total").innerText = items.reduce((s,i)=>s+i.qty*i.price,0);
+
+  let list = document.getElementById("cartList");
+  if(!items.length){
+    list.innerHTML = "<div class='small'>Корзина пуста</div>";
+    return;
+  }
+
+  list.innerHTML = items.map(i=>`
+    <div class="cart-item">
+      <div>
+        ${i.title} — ${i.flavor}<br>
+        <span class="small">₸${i.price} × ${i.qty}</span>
+      </div>
+      <div>
+        <button class="ci-btn" onclick="iQ('${i.key}',1)">+</button>
+        <button class="ci-btn" onclick="iQ('${i.key}',-1)">−</button>
+        <button class="ci-btn del" onclick="rI('${i.key}')">✕</button>
+      </div>
+    </div>
+  `).join("");
 }
-function iQ(k,d){cart[k].qty+=d;if(cart[k].qty<=0)delete cart[k];updateCartUI();}
-function rI(k){delete cart[k];updateCartUI();}
-function add(btn){let k=btn.dataset.key;if(cart[k])cart[k].qty++;else cart[k]={key:k,title:btn.dataset.title,flavor:btn.dataset.flavor,price:+btn.dataset.price,qty:1};updateCartUI();}
+
+function iQ(k,d){
+  if (!cart[k]) return;
+  cart[k].qty += d;
+  if (cart[k].qty <= 0) delete cart[k];
+  updateCartUI();
+}
+
+function rI(k){
+  delete cart[k];
+  updateCartUI();
+}
+
+function add(btn){
+  let k = btn.dataset.key;
+  if(cart[k]) cart[k].qty++;
+  else cart[k] = {
+    key:k,
+    title:btn.dataset.title,
+    flavor:btn.dataset.flavor,
+    price:+btn.dataset.price,
+    qty:1
+  };
+  updateCartUI();
+}
 
 function load(cat){
-document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.cat===cat));
-let box=document.getElementById("products");box.innerHTML="";
-let price=getPrice(cat);let title="WAKA "+cat.replace("waka","");
-data[cat].forEach((f,i)=>{
-let key=cat+"-"+i;
-box.innerHTML+=`<div class="card"><img class="pimg" src="${getImage(f)}" onerror="this.src='${DEFAULT_IMG}'"><div><b>${title}</b> — ${f}</div><div class="price">₸${price}</div><button class="btn" data-key="${key}" data-title="${title}" data-flavor="${f}" data-price="${price}" onclick="add(this)">В корзину</button></div>`;
-});
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active", t.dataset.cat===cat));
+  let box = document.getElementById("products");
+  box.innerHTML = "";
+
+  let price = getPrice(cat);
+  let title = "WAKA " + cat.replace("waka","");
+  data[cat].forEach((f,i)=>{
+    let key = cat+"-"+i;
+    box.innerHTML += `
+      <div class="card">
+        <img class="pimg" src="${getImage(f)}" onerror="this.src='${DEFAULT_IMG}'">
+        <div><b>${title}</b> — ${f}</div>
+        <div class="price">₸${price}</div>
+        <button class="btn"
+          data-key="${key}"
+          data-title="${title}"
+          data-flavor="${f}"
+          data-price="${price}"
+          onclick="add(this)"
+        >В корзину</button>
+      </div>
+    `;
+  });
 }
 
 function checkout(){
-if(!tg)return alert("Открой в Telegram");
-let items=Object.values(cart);
-if(!items.length)return alert("Корзина пуста");
-let addr=document.getElementById("address").value.trim();
-if(addr.length<5)return alert("Введите адрес");
-tg.sendData(JSON.stringify({address:addr,items,total:items.reduce((s,i)=>s+i.qty*i.price,0)}));
-tg.close();
+  if(!tg) return alert("Открой в Telegram");
+
+  let items = Object.values(cart);
+  if(!items.length) return alert("Корзина пуста");
+
+  let addr = document.getElementById("address").value.trim();
+  if(addr.length < 5) return alert("Введите адрес");
+
+  const total = items.reduce((s,i)=>s+i.qty*i.price,0);
+  tg.sendData(JSON.stringify({ address:addr, items, total }));
+  tg.close();
 }
 
-load("waka6000");updateCartUI();
+load("waka6000");
+updateCartUI();
 </script>
 </body>
 </html>
