@@ -12,7 +12,7 @@ header{padding:12px;background:#fff;font-weight:700}
 .tabs{display:flex;gap:10px;padding:10px;overflow:auto;position:sticky;top:0;background:#f4f6f8;z-index:50}
 .tab{background:#e2e8f0;padding:8px 12px;border-radius:10px;cursor:pointer;white-space:nowrap}
 .tab.active{background:#cbd5e1;font-weight:700}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;padding-bottom:320px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;padding-bottom:340px}
 .card{background:#fff;padding:10px;border-radius:12px}
 .price{font-weight:bold;margin:6px 0}
 .btn{width:100%;padding:10px;border:0;border-radius:10px;background:#3b82f6;color:#fff;margin-top:6px;cursor:pointer}
@@ -50,7 +50,6 @@ header{padding:12px;background:#fff;font-weight:700}
   <div class="cart-list" id="cartList"><div class="small">Корзина пуста</div></div>
 
   <input id="address" class="input" placeholder="Введите адрес доставки">
-
   <button class="btn" onclick="checkout()">Оформить заказ</button>
 
   <div class="notice">
@@ -67,15 +66,22 @@ header{padding:12px;background:#fff;font-weight:700}
 const tg = window.Telegram?.WebApp;
 if (tg) tg.ready();
 
-const DEFAULT_IMG = "img/placeholder.png";
+/* 1) ВСТАВЬТЕ СЮДА СВОЮ RAW-ССЫЛКУ НА ПАПКУ img В GITHUB
+   Пример:
+   https://raw.githubusercontent.com/username/repo/main/img/
+*/
+const BASE_IMG = "https://raw.githubusercontent.com/didar2007/tg-miniapp/main/img/";
+const DEFAULT_IMG = BASE_IMG + "placeholder.png";
+
+function img(fileName){
+  // fileName может быть "" или null — тогда отдадим DEFAULT_IMG
+  if (!fileName) return DEFAULT_IMG;
+  return BASE_IMG + fileName;
+}
 
 /*
-  ВАЖНО:
   stock — скрытый остаток. Пользователю НЕ показываем.
-  Логика:
-  - available = stock - qty_in_cart
-  - нельзя добавить больше доступного
-  - если stock==0 -> "Закончился" (disabled)
+  Логика доступности: available = stock - qty_in_cart
 */
 const CATEGORIES = [
   {
@@ -83,11 +89,11 @@ const CATEGORIES = [
     label: "🔥 WAKA 10000 — 12.990 ₸ 🔥",
     defaultPrice: 12990,
     products: [
-      { name: "🍏⚡ Sour Apple", ru: "Кислое яблоко", stock: 40, img: "img/apple10.PNG" },
-      { name: "🔵🫐 Mr. Blue", ru: "Черника микс", stock: 100, img: "img/fruits10.PNG" },
-      { name: "🥝🫐 Kiwi Mulberry", ru: "Киви · Шелковица", stock: 40, img: "img/placeholder.png" },
-      { name: "🍓💥 Lychee Burst", ru: "Личи", stock: 40, img: "img/placeholder.png" },
-      { name: "🍬😋 Fruity Chews", ru: "Фруктовые жвачки", stock: 20, img: "img/fruits10.PNG" }
+      { name: "🍏⚡ Sour Apple", ru: "Кислое яблоко", stock: 40, img: "sour-apple10.png" },
+      { name: "🔵🫐 Mr. Blue", ru: "Черника микс", stock: 100, img: "mr-blue10.png" },
+      { name: "🥝🫐 Kiwi Mulberry", ru: "Киви · Шелковица", stock: 40, img: "kiwi-mulberry10.jpg" },
+      { name: "🍓💥 Lychee Burst", ru: "Личи", stock: 40, img: "lychee-burst10.jpg" },
+      { name: "🍬😋 Fruity Chews", ru: "Фруктовые жвачки", stock: 20, img: "fruity-chews10.jpg" }
     ]
   },
   {
@@ -95,16 +101,16 @@ const CATEGORIES = [
     label: "🔥 WAKA 8000 — 10.990 ₸ 🔥",
     defaultPrice: 10990,
     products: [
-      { name: "🍒 Cherry", ru: "Вишня", stock: 20, img: "img/vishnya10.PNG" },
-      { name: "🍇❄️ Iced Grape", ru: "Виноград со льдом", stock: 20, img: "img/placeholder.png" },
-      { name: "🫐🍓 Blackcurrant Berry Drink", ru: "Морс · Чёрная смородина · Ягоды", stock: 10, img: "img/placeholder.png" },
-      { name: "🍓🍉 Strawberry Watermelon", ru: "Клубника · Арбуз", stock: 10, img: "img/placeholder.png" },
-      { name: "🍏⚡ Sour Apple", ru: "Кислое яблоко", stock: 20, img: "img/apple10.PNG" },
-      { name: "🍓 Fresh Strawberry", ru: "Свежая клубника", stock: 10, img: "img/placeholder.png" },
-      { name: "🍒🍋 Cherry Lemon", ru: "Вишня · Лимон", stock: 10, img: "img/placeholder.png" },
-      { name: "🥭❄️ Iced Mango", ru: "Манго со льдом", stock: 10, img: "img/placeholder.png" },
-      { name: "🍋🍃 Lemon Lime", ru: "Лимон · Лайм", stock: 20, img: "img/placeholder.png" },
-      { name: "🍉❄️ Iced Watermelon", ru: "Арбуз со льдом", stock: 10, img: "img/watermelon10.PNG" }
+      { name: "🍒 Cherry", ru: "Вишня", stock: 20, img: "cherry8.png" },
+      { name: "🍇❄️ Iced Grape", ru: "Виноград со льдом", stock: 20, img: "iced-grape.png" },
+      { name: "🫐🍓 Blackcurrant Berry Drink", ru: "Морс · Чёрная смородина · Ягоды", stock: 10, img: "blackcurrent-berry-drink.png" },
+      { name: "🍓🍉 Strawberry Watermelon", ru: "Клубника · Арбуз", stock: 10, img: "strawberry-watermelon.png" },
+      { name: "🍏⚡ Sour Apple", ru: "Кислое яблоко", stock: 20, img: "sour-apple8.png" },
+      { name: "🍓 Fresh Strawberry", ru: "Свежая клубника", stock: 10, img: "fresh-strawberry.png" },
+      { name: "🍒🍋 Cherry Lemon", ru: "Вишня · Лимон", stock: 10, img: "cherry-lemon.png" },
+      { name: "🥭❄️ Iced Mango", ru: "Манго со льдом", stock: 10, img: "iced-mango.png" },
+      { name: "🍋🍃 Lemon Lime", ru: "Лимон · Лайм", stock: 20, img: "lemon-lime.png" },
+      { name: "🍉❄️ Iced Watermelon", ru: "Арбуз со льдом", stock: 10, img: "iced-watermelon.png" }
     ]
   },
   {
@@ -112,10 +118,10 @@ const CATEGORIES = [
     label: "🔥 WAKA 15000 — 14.990 ₸ 🔥 (ЖИДКОСТЬ ВАКА В ПОДАРОК)",
     defaultPrice: 14990,
     products: [
-      { name: "🍉 Watermelon", ru: "Арбуз", stock: 3, img: "img/watermelon10.PNG" },
-      { name: "🌵🍋 Cactus Lemon", ru: "Кактус · Лимон", stock: 7, img: "img/placeholder.png" },
-      { name: "🌿❄️ Mint", ru: "Мята", stock: 5, img: "img/myata10.PNG" },
-      { name: "🍏⚡ Sour Apple", ru: "Кислое яблоко", stock: 9, img: "img/apple10.PNG" }
+      { name: "🍉 Watermelon", ru: "Арбуз", stock: 3, img: "watermelon15.jpg" },
+      { name: "🌵🍋 Cactus Lemon", ru: "Кактус · Лимон", stock: 7, img: "cactus-lemon15.jpg" },
+      { name: "🌿❄️ Mint", ru: "Мята", stock: 5, img: "mint15.jpg" },
+      { name: "🍏⚡ Sour Apple", ru: "Кислое яблоко", stock: 9, img: "sour-apple15.jpg" }
     ]
   },
   {
@@ -123,8 +129,8 @@ const CATEGORIES = [
     label: "🔥 WAKA 20000 — 14.990 ₸ 🔥",
     defaultPrice: 14990,
     products: [
-      { name: "🍓🫐 Strawberry Raspberry", ru: "Клубника · Малина", stock: 20, img: "img/str-mal6.PNG" },
-      { name: "🫐🍒 Blueberry Cranberry Cherry", ru: "Черника · Клюква · Вишня", stock: 10, img: "img/chern-klu-vish10.PNG" }
+      { name: "🍓🫐 Strawberry Raspberry", ru: "Клубника · Малина", stock: 20, img: "straberry-raspberry20.jpg" },
+      { name: "🫐🍒 Blueberry Cranberry Cherry", ru: "Черника · Клюква · Вишня", stock: 10, img: "bluberry-chanberry-cherry20.jpg" }
     ]
   },
   {
@@ -132,27 +138,27 @@ const CATEGORIES = [
     label: "🔥 WAKA 35000 — 15.990 ₸ 🔥 (ЖИДКОСТЬ ВАКА В ПОДАРОК)",
     defaultPrice: 15990,
     products: [
-      { name: "🍇🫐 Cranberry Grape", ru: "Клюква · Виноград", stock: 10, img: "img/placeholder.png" },
-      { name: "🍓🍇 Strawberry", ru: "Клубника · Виноград", stock: 10, img: "img/str-grape6.PNG" },
-      { name: "🖤🫐 Black Raspberry", ru: "Чёрная малина", stock: 10, img: "img/placeholder.png" }
+      { name: "🍇🫐 Cranberry Grape", ru: "Клюква · Виноград", stock: 10, img: "chanberry-grape35.jpg" },
+      { name: "🍓🍇 Strawberry", ru: "Клубника · Виноград", stock: 10, img: "strawberry35.png" },
+      { name: "🖤🫐 Black Raspberry", ru: "Чёрная малина", stock: 10, img: "black-raspberry35.jpg" }
     ]
   },
   {
     id: "liquid",
     label: "🔥 WAKA ЖИДКОСТЬ 🔥",
-    defaultPrice: 0, // если у жидкости будет фикс цена — поставьте сюда, либо задавайте price в товаре
+    defaultPrice: 0, // поставьте цену здесь, если она единая
     products: [
-      { name: "🍉 Watermelon", ru: "Арбуз", stock: 20, price: 0, img: "img/watermelon10.PNG" },
-      { name: "🫐🍒 Blackberry Blueberry Cherry", ru: "Ежевика · Черника · Вишня", stock: 30, price: 0, img: "img/placeholder.png" },
-      { name: "🥤❄️ Iced Lemon Cola", ru: "Лимонная ледяная кола", stock: 20, price: 0, img: "img/str-soda10.PNG" },
-      { name: "🌴🍋 Hawaiian Lemonade", ru: "Гавайский лимонад", stock: 30, price: 0, img: "img/placeholder.png" },
-      { name: "🫐🍉 Blueberry Watermelon", ru: "Черника · Арбуз", stock: 30, price: 0, img: "img/placeholder.png" },
-      { name: "🍇🍬 Grape Gum", ru: "Виноградная жвачка", stock: 30, price: 0, img: "img/placeholder.png" },
-      { name: "🍓🍒 Strawberry Raspberry Cherry", ru: "Клубника · Малина · Вишня", stock: 10, price: 0, img: "img/placeholder.png" },
-      { name: "🍏⚡ Sour Apple", ru: "Кислое яблоко", stock: 10, price: 0, img: "img/apple10.PNG" },
-      { name: "🍋🫐 Sour Berry Lemonade", ru: "Лимонад · Кислая ягода", stock: 30, price: 0, img: "img/str-soda10.PNG" },
-      { name: "🥤 Sprite", ru: "Спрайт", stock: 10, price: 0, img: "img/placeholder.png" },
-      { name: "🌊🍋 Sea Salt Lemon", ru: "Морская соль · Лимон", stock: 20, price: 0, img: "img/placeholder.png" }
+      { name: "🍉 Watermelon", ru: "Арбуз", stock: 20, price: 0, img: "zhizha.jpg" },
+      { name: "🫐🍒 Blackberry Blueberry Cherry", ru: "Ежевика · Черника · Вишня", stock: 30, price: 0, img: "zhizha.jpg" },
+      { name: "🥤❄️ Iced Lemon Cola", ru: "Лимонная ледяная кола", stock: 20, price: 0, img: "zhizha.jpg" },
+      { name: "🌴🍋 Hawaiian Lemonade", ru: "Гавайский лимонад", stock: 30, price: 0, img: "zhizha.jpg" },
+      { name: "🫐🍉 Blueberry Watermelon", ru: "Черника · Арбуз", stock: 30, price: 0, img: "zhizha.jpg" },
+      { name: "🍇🍬 Grape Gum", ru: "Виноградная жвачка", stock: 30, price: 0, img: "zhizha.jpg" },
+      { name: "🍓🍒 Strawberry Raspberry Cherry", ru: "Клубника · Малина · Вишня", stock: 10, price: 0, img: "zhizha.jpg" },
+      { name: "🍏⚡ Sour Apple", ru: "Кислое яблоко", stock: 10, price: 0, img: "zhizha.jpg" },
+      { name: "🍋🫐 Sour Berry Lemonade", ru: "Лимонад · Кислая ягода", stock: 30, price: 0, img: "zhizha.jpg" },
+      { name: "🥤 Sprite", ru: "Спрайт", stock: 10, price: 0, img: "zhizha.jpg" },
+      { name: "🌊🍋 Sea Salt Lemon", ru: "Морская соль · Лимон", stock: 20, price: 0, img: "zhizha.jpg" }
     ]
   }
 ];
@@ -162,36 +168,23 @@ function closeWelcome(){
   if (w) w.style.display = "none";
   if (tg && typeof tg.expand === "function") tg.expand();
 }
-
 document.getElementById("welcome").addEventListener("click", (e) => {
   if (e.target && e.target.id === "welcome") closeWelcome();
 });
 
-function safeImg(src){ return src || DEFAULT_IMG; }
-
 // cart: key -> {key, catId, index, name, ru, price, qty}
 let cart = {};
 
-function cartQtyFor(key){
-  return cart[key]?.qty || 0;
-}
-
-function getCategory(catId){
-  return CATEGORIES.find(c => c.id === catId);
-}
-
+function cartQtyFor(key){ return cart[key]?.qty || 0; }
+function getCategory(catId){ return CATEGORIES.find(c => c.id === catId); }
 function getProduct(catId, index){
   const cat = getCategory(catId);
-  if (!cat) return null;
-  return cat.products[index] || null;
+  return cat ? (cat.products[index] || null) : null;
 }
-
-function productKey(catId, index){
-  return `${catId}-${index}`;
-}
+function productKey(catId, index){ return `${catId}-${index}`; }
 
 function getUnitPrice(cat, prod){
-  if (typeof prod.price === "number") return prod.price; // если задана индивидуальная цена
+  if (typeof prod.price === "number") return prod.price;
   return cat.defaultPrice;
 }
 
@@ -230,7 +223,6 @@ function updateCartUI(){
     `).join("");
   }
 
-  // после обновления корзины нужно обновить кнопки/статусы в карточках
   refreshProductButtons();
 }
 
@@ -252,13 +244,9 @@ function addToCart(catId, index){
 
   if (cart[key]) cart[key].qty++;
   else cart[key] = {
-    key,
-    catId,
-    index,
-    name: prod.name,
-    ru: prod.ru,
-    price,
-    qty: 1
+    key, catId, index,
+    name: prod.name, ru: prod.ru,
+    price, qty: 1
   };
 
   updateCartUI();
@@ -269,8 +257,6 @@ function incQty(key){
   if (!item) return;
 
   const avail = availableStock(item.catId, item.index);
-  // availableStock уже учитывает текущую qty в корзине, поэтому при попытке увеличить
-  // нужно проверить "будет ли доступно после +1": просто avail должен быть > 0
   if (avail <= 0){
     alert("Товар закончился");
     refreshProductButtons();
@@ -296,13 +282,14 @@ function removeItem(key){
 function buildTabs(){
   const tabs = document.getElementById("tabs");
   tabs.innerHTML = "";
-  CATEGORIES.forEach((c, idx) => {
-    const short = c.id.replace("waka","WAKA ").toUpperCase();
-    const label = (c.id === "liquid") ? "ЖИДКОСТЬ" : short.replace("WAKA ","WAKA ");
+  CATEGORIES.forEach((c) => {
     const el = document.createElement("div");
     el.className = "tab";
     el.dataset.cat = c.id;
-    el.textContent = label;
+
+    // короткий текст вкладки
+    el.textContent = (c.id === "liquid") ? "ЖИДКОСТЬ" : c.id.replace("waka","WAKA ").toUpperCase();
+
     el.onclick = () => loadCategory(c.id);
     tabs.appendChild(el);
   });
@@ -329,18 +316,15 @@ function loadCategory(catId){
   cat.products.forEach((p, i) => {
     const key = productKey(catId, i);
     const price = getUnitPrice(cat, p);
-    const img = safeImg(p.img);
-
-    // текст цены (у жидкости может быть 0 пока вы не зададите цену)
     const priceText = (price && price > 0) ? `₸${price}` : "Цена уточняется";
 
     box.innerHTML += `
       <div class="card" data-key="${key}">
-        <img class="pimg" src="${img}" onerror="this.src='${DEFAULT_IMG}'">
+        <img class="pimg" src="${img(p.img)}" onerror="this.src='${DEFAULT_IMG}'">
         <div><b>${p.name}</b></div>
         <div class="small">${p.ru}</div>
         <div class="price">${priceText}</div>
-        <button class="btn add-btn" data-cat="${catId}" data-index="${i}" onclick="addToCart('${catId}', ${i})">В корзину</button>
+        <button class="btn add-btn" onclick="addToCart('${catId}', ${i})">В корзину</button>
       </div>
     `;
   });
@@ -349,7 +333,6 @@ function loadCategory(catId){
 }
 
 function refreshProductButtons(){
-  // обновляем статусы кнопок ТОЛЬКО для текущей категории (быстрее)
   const catId = currentCatId;
   const cat = getCategory(catId);
   if (!cat) return;
@@ -364,13 +347,7 @@ function refreshProductButtons(){
 
     const avail = availableStock(catId, i);
 
-    if ((p.stock || 0) <= 0){
-      btn.disabled = true;
-      btn.textContent = "Закончился";
-      return;
-    }
-
-    if (avail <= 0){
+    if ((p.stock || 0) <= 0 || avail <= 0){
       btn.disabled = true;
       btn.textContent = "Закончился";
     } else {
@@ -391,7 +368,6 @@ function checkout(){
 
   const total = items.reduce((s,i)=>s+i.qty*i.price,0);
 
-  // отправляем в бота: адрес + корзина + сумма
   tg.sendData(JSON.stringify({
     address: addr,
     items: items.map(i => ({
