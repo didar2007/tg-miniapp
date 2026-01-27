@@ -12,7 +12,7 @@ header{padding:12px;background:#fff;font-weight:700}
 .tabs{display:flex;gap:10px;padding:10px;overflow:auto;position:sticky;top:0;background:#f4f6f8;z-index:50}
 .tab{background:#e2e8f0;padding:8px 12px;border-radius:10px;cursor:pointer;white-space:nowrap}
 .tab.active{background:#cbd5e1;font-weight:700}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;padding-bottom:340px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;padding-bottom:420px}
 .card{background:#fff;padding:10px;border-radius:12px}
 .price{font-weight:bold;margin:6px 0}
 .btn{width:100%;padding:10px;border:0;border-radius:10px;background:#3b82f6;color:#fff;margin-top:6px;cursor:pointer}
@@ -49,7 +49,16 @@ header{padding:12px;background:#fff;font-weight:700}
   🛒 <b><span id="count">0</span></b> · Итого: <b><span id="total">0</span> ₸</b>
   <div class="cart-list" id="cartList"><div class="small">Корзина пуста</div></div>
 
+  <!-- НОВОЕ: телефон -->
+  <input id="phone" class="input" placeholder="Введите номер телефона (пример: +7 777 123 45 67)" inputmode="tel">
+
   <input id="address" class="input" placeholder="Введите адрес доставки">
+
+  <!-- НОВОЕ: связаться с администратором -->
+  <button class="btn" onclick="contactAdmin()" style="background:#10b981;">
+    📩 Связаться с администратором
+  </button>
+
   <button class="btn" onclick="checkout()">Оформить заказ</button>
 
   <div class="notice">
@@ -66,22 +75,18 @@ header{padding:12px;background:#fff;font-weight:700}
 const tg = window.Telegram?.WebApp;
 if (tg) tg.ready();
 
-/* 1) ВСТАВЬТЕ СЮДА СВОЮ RAW-ССЫЛКУ НА ПАПКУ img В GITHUB
-   Пример:
-   https://raw.githubusercontent.com/username/repo/main/img/
-*/
+/* RAW ссылка на папку img */
 const BASE_IMG = "https://raw.githubusercontent.com/didar2007/tg-miniapp/main/img/";
 const DEFAULT_IMG = BASE_IMG + "placeholder.png";
 
 function img(fileName){
-  // fileName может быть "" или null — тогда отдадим DEFAULT_IMG
   if (!fileName) return DEFAULT_IMG;
   return BASE_IMG + fileName;
 }
 
 /*
-  stock — скрытый остаток. Пользователю НЕ показываем.
-  Логика доступности: available = stock - qty_in_cart
+  stock — скрытый остаток (не показываем).
+  available = stock - qty_in_cart
 */
 const CATEGORIES = [
   {
@@ -146,7 +151,7 @@ const CATEGORIES = [
   {
     id: "liquid",
     label: "🔥 WAKA ЖИДКОСТЬ 🔥",
-    defaultPrice: 0, // поставьте цену здесь, если она единая
+    defaultPrice: 0,
     products: [
       { name: "🍉 Watermelon", ru: "Арбуз", stock: 20, price: 0, img: "zhizha.jpg" },
       { name: "🫐🍒 Blackberry Blueberry Cherry", ru: "Ежевика · Черника · Вишня", stock: 30, price: 0, img: "zhizha.jpg" },
@@ -171,6 +176,16 @@ function closeWelcome(){
 document.getElementById("welcome").addEventListener("click", (e) => {
   if (e.target && e.target.id === "welcome") closeWelcome();
 });
+
+// НОВОЕ: связь с администратором
+function contactAdmin(){
+  const username = "didar2007"; // <-- если надо другой админ, поменяй на username без @
+  if (window.Telegram && Telegram.WebApp) {
+    Telegram.WebApp.openTelegramLink("https://t.me/" + username);
+  } else {
+    window.open("https://t.me/" + username, "_blank");
+  }
+}
 
 // cart: key -> {key, catId, index, name, ru, price, qty}
 let cart = {};
@@ -286,10 +301,7 @@ function buildTabs(){
     const el = document.createElement("div");
     el.className = "tab";
     el.dataset.cat = c.id;
-
-    // короткий текст вкладки
     el.textContent = (c.id === "liquid") ? "ЖИДКОСТЬ" : c.id.replace("waka","WAKA ").toUpperCase();
-
     el.onclick = () => loadCategory(c.id);
     tabs.appendChild(el);
   });
@@ -357,11 +369,25 @@ function refreshProductButtons(){
   });
 }
 
+// НОВОЕ: простая проверка телефона
+function normalizePhone(raw){
+  return (raw || "").replace(/[^\d+]/g, "");
+}
+function isValidPhone(p){
+  // допускаем +7XXXXXXXXXX или 7XXXXXXXXXX или 8XXXXXXXXXX (минимум 10 цифр)
+  const digits = p.replace(/\D/g, "");
+  return digits.length >= 10 && digits.length <= 15;
+}
+
 function checkout(){
   if(!tg) return alert("Открой в Telegram");
 
   const items = Object.values(cart);
   if(!items.length) return alert("Корзина пуста");
+
+  const phoneRaw = document.getElementById("phone").value.trim();
+  const phone = normalizePhone(phoneRaw);
+  if(!isValidPhone(phone)) return alert("Введите корректный номер телефона");
 
   const addr = document.getElementById("address").value.trim();
   if(addr.length < 5) return alert("Введите адрес");
@@ -369,6 +395,7 @@ function checkout(){
   const total = items.reduce((s,i)=>s+i.qty*i.price,0);
 
   tg.sendData(JSON.stringify({
+    phone,
     address: addr,
     items: items.map(i => ({
       catId: i.catId,
