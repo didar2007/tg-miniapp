@@ -49,12 +49,9 @@ header{padding:12px;background:#fff;font-weight:700}
   🛒 <b><span id="count">0</span></b> · Итого: <b><span id="total">0</span> ₸</b>
   <div class="cart-list" id="cartList"><div class="small">Корзина пуста</div></div>
 
-  <!-- НОВОЕ: телефон -->
   <input id="phone" class="input" placeholder="Введите номер телефона (пример: +7 777 123 45 67)" inputmode="tel">
-
   <input id="address" class="input" placeholder="Введите адрес доставки">
 
-  <!-- НОВОЕ: связаться с администратором -->
   <button class="btn" onclick="contactAdmin()" style="background:#10b981;">
     📩 Связаться с администратором
   </button>
@@ -75,8 +72,9 @@ header{padding:12px;background:#fff;font-weight:700}
 const tg = window.Telegram?.WebApp;
 if (tg) tg.ready();
 
-/* RAW ссылка на папку img */
-const BASE_IMG = "https://raw.githubusercontent.com/didar2007/tg-miniapp/main/img/";
+/* ✅ ИЗМЕНЕНО: теперь папка img1 */
+const BASE_IMG = "https://raw.githubusercontent.com/didar2007/tg-miniapp/main/img1/";
+/* ✅ ИЗМЕНЕНО: placeholder тоже ищем в img1 */
 const DEFAULT_IMG = BASE_IMG + "placeholder.png";
 
 function img(fileName){
@@ -177,9 +175,8 @@ document.getElementById("welcome").addEventListener("click", (e) => {
   if (e.target && e.target.id === "welcome") closeWelcome();
 });
 
-// НОВОЕ: связь с администратором
 function contactAdmin(){
-  const username = "salemhanovvv"; // <-- если надо другой админ, поменяй на username без @
+  const username = "salemhanovvv";
   if (window.Telegram && Telegram.WebApp) {
     Telegram.WebApp.openTelegramLink("https://t.me/" + username);
   } else {
@@ -187,7 +184,6 @@ function contactAdmin(){
   }
 }
 
-// cart: key -> {key, catId, index, name, ru, price, qty}
 let cart = {};
 
 function cartQtyFor(key){ return cart[key]?.qty || 0; }
@@ -369,12 +365,10 @@ function refreshProductButtons(){
   });
 }
 
-// НОВОЕ: простая проверка телефона
 function normalizePhone(raw){
   return (raw || "").replace(/[^\d+]/g, "");
 }
 function isValidPhone(p){
-  // допускаем +7XXXXXXXXXX или 7XXXXXXXXXX или 8XXXXXXXXXX (минимум 10 цифр)
   const digits = p.replace(/\D/g, "");
   return digits.length >= 10 && digits.length <= 15;
 }
@@ -418,5 +412,3 @@ updateCartUI();
 </script>
 </body>
 </html>
-
-
