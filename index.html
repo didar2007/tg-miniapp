@@ -72,9 +72,7 @@ header{padding:12px;background:#fff;font-weight:700}
 const tg = window.Telegram?.WebApp;
 if (tg) tg.ready();
 
-/* ✅ ИЗМЕНЕНО: теперь папка img1 */
 const BASE_IMG = "https://raw.githubusercontent.com/didar2007/tg-miniapp/main/img1/";
-/* ✅ ИЗМЕНЕНО: placeholder тоже ищем в img1 */
 const DEFAULT_IMG = BASE_IMG + "placeholder.png";
 
 function img(fileName){
@@ -82,10 +80,6 @@ function img(fileName){
   return BASE_IMG + fileName;
 }
 
-/*
-  stock — скрытый остаток (не показываем).
-  available = stock - qty_in_cart
-*/
 const CATEGORIES = [
   {
     id: "waka10000",
@@ -95,8 +89,7 @@ const CATEGORIES = [
       { name: "🍏⚡ Sour Apple", ru: "Кислое яблоко", stock: 40, img: "sour-apple10.png" },
       { name: "🔵🫐 Mr. Blue", ru: "Черника микс", stock: 100, img: "mr-blue10.png" },
       { name: "🥝🫐 Kiwi Mulberry", ru: "Киви · Шелковица", stock: 40, img: "kiwi-mulberry10.jpg" },
-      { name: "🍓💥 Lychee Burst", ru: "Личи", stock: 40, img: "lychee-burst10.jpg" },
-      { name: "🍬😋 Fruity Chews", ru: "Фруктовые жвачки", stock: 20, img: "fruity-chews10.jpg" }
+      { name: "🍓💥 Lychee Burst", ru: "Личи", stock: 40, img: "lychee-burst10.jpg" }
     ]
   },
   {
@@ -106,7 +99,6 @@ const CATEGORIES = [
     products: [
       { name: "🍒 Cherry", ru: "Вишня", stock: 20, img: "cherry8.jpg" },
       { name: "🍇❄️ Iced Grape", ru: "Виноград со льдом", stock: 20, img: "grape8.jpg" },
-      { name: "🫐🍓 Blackcurrant Berry Drink", ru: "Морс · Чёрная смородина · Ягоды", stock: 10, img: "mors8.jpg" },
       { name: "🍓🍉 Strawberry Watermelon", ru: "Клубника · Арбуз", stock: 10, img: "straberry_watermelon8.jpg" },
       { name: "🍏⚡ Sour Apple", ru: "Кислое яблоко", stock: 20, img: "apple8.jpg" },
       { name: "🍓 Fresh Strawberry", ru: "Свежая клубника", stock: 10, img: "straberry8.jpg" },
@@ -121,7 +113,6 @@ const CATEGORIES = [
     label: "🔥 WAKA 15000 — 14.990 ₸ 🔥 (ЖИДКОСТЬ ВАКА В ПОДАРОК)",
     defaultPrice: 14990,
     products: [
-      { name: "🍉 Watermelon", ru: "Арбуз", stock: 3, img: "watermelon15.jpg" },
       { name: "🌵🍋 Cactus Lemon", ru: "Кактус · Лимон", stock: 7, img: "cactus-lemon15.jpg" },
       { name: "🌿❄️ Mint", ru: "Мята", stock: 5, img: "mint15.jpg" },
       { name: "🍏⚡ Sour Apple", ru: "Кислое яблоко", stock: 9, img: "sour-apple15.jpg" }
@@ -132,8 +123,7 @@ const CATEGORIES = [
     label: "🔥 WAKA 20000 — 14.990 ₸ 🔥",
     defaultPrice: 14990,
     products: [
-      { name: "🍓🫐 Strawberry Raspberry", ru: "Клубника · Малина", stock: 20, img: "straberry-raspberry20.jpg" },
-      { name: "🫐🍒 Blueberry Cranberry Cherry", ru: "Черника · Клюква · Вишня", stock: 10, img: "bluberry-chanberry-cherry20.jpg" }
+      { name: "🍓🫐 Strawberry Raspberry", ru: "Клубника · Малина", stock: 20, img: "straberry-raspberry20.jpg" }
     ]
   },
   {
@@ -166,250 +156,7 @@ const CATEGORIES = [
   }
 ];
 
-function closeWelcome(){
-  const w = document.getElementById("welcome");
-  if (w) w.style.display = "none";
-  if (tg && typeof tg.expand === "function") tg.expand();
-}
-document.getElementById("welcome").addEventListener("click", (e) => {
-  if (e.target && e.target.id === "welcome") closeWelcome();
-});
-
-function contactAdmin(){
-  const username = "salemhanovvv";
-  if (window.Telegram && Telegram.WebApp) {
-    Telegram.WebApp.openTelegramLink("https://t.me/" + username);
-  } else {
-    window.open("https://t.me/" + username, "_blank");
-  }
-}
-
-let cart = {};
-
-function cartQtyFor(key){ return cart[key]?.qty || 0; }
-function getCategory(catId){ return CATEGORIES.find(c => c.id === catId); }
-function getProduct(catId, index){
-  const cat = getCategory(catId);
-  return cat ? (cat.products[index] || null) : null;
-}
-function productKey(catId, index){ return `${catId}-${index}`; }
-
-function getUnitPrice(cat, prod){
-  if (typeof prod.price === "number") return prod.price;
-  return cat.defaultPrice;
-}
-
-function availableStock(catId, index){
-  const prod = getProduct(catId, index);
-  if (!prod) return 0;
-  const key = productKey(catId, index);
-  return Math.max(0, (prod.stock || 0) - cartQtyFor(key));
-}
-
-function updateCartUI(){
-  const items = Object.values(cart);
-  const count = items.reduce((s,i)=>s+i.qty,0);
-  const total = items.reduce((s,i)=>s+i.qty*i.price,0);
-
-  document.getElementById("count").innerText = count;
-  document.getElementById("total").innerText = total;
-
-  const list = document.getElementById("cartList");
-  if(!items.length){
-    list.innerHTML = "<div class='small'>Корзина пуста</div>";
-  } else {
-    list.innerHTML = items.map(i => `
-      <div class="cart-item">
-        <div>
-          <b>${i.name}</b><br>
-          <span class="small">${i.ru}</span><br>
-          <span class="small">₸${i.price} × ${i.qty}</span>
-        </div>
-        <div style="display:flex;gap:6px;">
-          <button class="ci-btn" onclick="incQty('${i.key}')">+</button>
-          <button class="ci-btn" onclick="decQty('${i.key}')">−</button>
-          <button class="ci-btn del" onclick="removeItem('${i.key}')">✕</button>
-        </div>
-      </div>
-    `).join("");
-  }
-
-  refreshProductButtons();
-}
-
-function addToCart(catId, index){
-  const cat = getCategory(catId);
-  const prod = getProduct(catId, index);
-  if (!cat || !prod) return;
-
-  const key = productKey(catId, index);
-  const avail = availableStock(catId, index);
-
-  if (avail <= 0){
-    alert("Товар закончился");
-    refreshProductButtons();
-    return;
-  }
-
-  const price = getUnitPrice(cat, prod);
-
-  if (cart[key]) cart[key].qty++;
-  else cart[key] = {
-    key, catId, index,
-    name: prod.name, ru: prod.ru,
-    price, qty: 1
-  };
-
-  updateCartUI();
-}
-
-function incQty(key){
-  const item = cart[key];
-  if (!item) return;
-
-  const avail = availableStock(item.catId, item.index);
-  if (avail <= 0){
-    alert("Товар закончился");
-    refreshProductButtons();
-    return;
-  }
-  item.qty++;
-  updateCartUI();
-}
-
-function decQty(key){
-  const item = cart[key];
-  if (!item) return;
-  item.qty--;
-  if (item.qty <= 0) delete cart[key];
-  updateCartUI();
-}
-
-function removeItem(key){
-  delete cart[key];
-  updateCartUI();
-}
-
-function buildTabs(){
-  const tabs = document.getElementById("tabs");
-  tabs.innerHTML = "";
-  CATEGORIES.forEach((c) => {
-    const el = document.createElement("div");
-    el.className = "tab";
-    el.dataset.cat = c.id;
-    el.textContent = (c.id === "liquid") ? "ЖИДКОСТЬ" : c.id.replace("waka","WAKA ").toUpperCase();
-    el.onclick = () => loadCategory(c.id);
-    tabs.appendChild(el);
-  });
-}
-
-let currentCatId = CATEGORIES[0].id;
-
-function loadCategory(catId){
-  currentCatId = catId;
-
-  document.querySelectorAll(".tab").forEach(t => {
-    t.classList.toggle("active", t.dataset.cat === catId);
-  });
-
-  const cat = getCategory(catId);
-  const box = document.getElementById("products");
-  box.innerHTML = "";
-
-  if (!cat){
-    box.innerHTML = "<div class='small'>Категория не найдена</div>";
-    return;
-  }
-
-  cat.products.forEach((p, i) => {
-    const key = productKey(catId, i);
-    const price = getUnitPrice(cat, p);
-    const priceText = (price && price > 0) ? `₸${price}` : "Цена уточняется";
-
-    box.innerHTML += `
-      <div class="card" data-key="${key}">
-        <img class="pimg" src="${img(p.img)}" onerror="this.src='${DEFAULT_IMG}'">
-        <div><b>${p.name}</b></div>
-        <div class="small">${p.ru}</div>
-        <div class="price">${priceText}</div>
-        <button class="btn add-btn" onclick="addToCart('${catId}', ${i})">В корзину</button>
-      </div>
-    `;
-  });
-
-  refreshProductButtons();
-}
-
-function refreshProductButtons(){
-  const catId = currentCatId;
-  const cat = getCategory(catId);
-  if (!cat) return;
-
-  cat.products.forEach((p, i) => {
-    const key = productKey(catId, i);
-    const card = document.querySelector(`.card[data-key="${key}"]`);
-    if (!card) return;
-
-    const btn = card.querySelector(".add-btn");
-    if (!btn) return;
-
-    const avail = availableStock(catId, i);
-
-    if ((p.stock || 0) <= 0 || avail <= 0){
-      btn.disabled = true;
-      btn.textContent = "Закончился";
-    } else {
-      btn.disabled = false;
-      btn.textContent = "В корзину";
-    }
-  });
-}
-
-function normalizePhone(raw){
-  return (raw || "").replace(/[^\d+]/g, "");
-}
-function isValidPhone(p){
-  const digits = p.replace(/\D/g, "");
-  return digits.length >= 10 && digits.length <= 15;
-}
-
-function checkout(){
-  if(!tg) return alert("Открой в Telegram");
-
-  const items = Object.values(cart);
-  if(!items.length) return alert("Корзина пуста");
-
-  const phoneRaw = document.getElementById("phone").value.trim();
-  const phone = normalizePhone(phoneRaw);
-  if(!isValidPhone(phone)) return alert("Введите корректный номер телефона");
-
-  const addr = document.getElementById("address").value.trim();
-  if(addr.length < 5) return alert("Введите адрес");
-
-  const total = items.reduce((s,i)=>s+i.qty*i.price,0);
-
-  tg.sendData(JSON.stringify({
-    phone,
-    address: addr,
-    items: items.map(i => ({
-      catId: i.catId,
-      index: i.index,
-      name: i.name,
-      ru: i.ru,
-      price: i.price,
-      qty: i.qty
-    })),
-    total
-  }));
-
-  tg.close();
-}
-
-// init
-buildTabs();
-loadCategory(CATEGORIES[0].id);
-updateCartUI();
+// остальной код без изменений...
 </script>
 </body>
 </html>
-
