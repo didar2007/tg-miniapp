@@ -49,23 +49,10 @@ header{padding:12px;background:#fff;font-weight:700}
   🛒 <b><span id="count">0</span></b> · Итого: <b><span id="total">0</span> ₸</b>
   <div class="cart-list" id="cartList"><div class="small">Корзина пуста</div></div>
 
-  <input id="phone" class="input" placeholder="Введите номер телефона (пример: +7 777 123 45 67)" inputmode="tel">
+  <input id="phone" class="input" placeholder="Введите номер телефона" inputmode="tel">
   <input id="address" class="input" placeholder="Введите адрес доставки">
 
-  <button class="btn" onclick="contactAdmin()" style="background:#10b981;">
-    📩 Связаться с администратором
-  </button>
-
   <button class="btn" onclick="checkout()">Оформить заказ</button>
-
-  <div class="notice">
-    <div style="font-weight:700;margin-bottom:6px;">🚚 Доставка</div>
-    <div class="small">
-      • По городу — 1 000 ₸<br>
-      • (Мичурин, Красный Партизан, Заречный, 2 Костанай, Тобол) — 1 500 ₸<br><br>
-      ⏱ 60-90 минут.
-    </div>
-  </div>
 </div>
 
 <script>
@@ -81,82 +68,103 @@ function img(fileName){
 }
 
 const CATEGORIES = [
-  {
-    id: "waka10000",
-    label: "🔥 WAKA 10000 — 12.990 ₸ 🔥",
-    defaultPrice: 12990,
-    products: [
-      { name: "🍏⚡ Sour Apple", ru: "Кислое яблоко", stock: 40, img: "sour-apple10.png" },
-      { name: "🔵🫐 Mr. Blue", ru: "Черника микс", stock: 100, img: "mr-blue10.png" },
-      { name: "🥝🫐 Kiwi Mulberry", ru: "Киви · Шелковица", stock: 40, img: "kiwi-mulberry10.jpg" },
-      { name: "🍓💥 Lychee Burst", ru: "Личи", stock: 40, img: "lychee-burst10.jpg" }
-    ]
-  },
-  {
-    id: "waka8000",
-    label: "🔥 WAKA 8000 — 10.990 ₸ 🔥",
-    defaultPrice: 10990,
-    products: [
-      { name: "🍒 Cherry", ru: "Вишня", stock: 20, img: "cherry8.jpg" },
-      { name: "🍇❄️ Iced Grape", ru: "Виноград со льдом", stock: 20, img: "grape8.jpg" },
-      { name: "🍓🍉 Strawberry Watermelon", ru: "Клубника · Арбуз", stock: 10, img: "straberry_watermelon8.jpg" },
-      { name: "🍏⚡ Sour Apple", ru: "Кислое яблоко", stock: 20, img: "apple8.jpg" },
-      { name: "🍓 Fresh Strawberry", ru: "Свежая клубника", stock: 10, img: "straberry8.jpg" },
-      { name: "🍒🍋 Cherry Lemon", ru: "Вишня · Лимон", stock: 10, img: "lemon_berry8.jpg" },
-      { name: "🥭❄️ Iced Mango", ru: "Манго со льдом", stock: 10, img: "iced_mango8.jpg" },
-      { name: "🍋🍃 Lemon Lime", ru: "Лимон · Лайм", stock: 20, img: "lemon_lime8.jpg" },
-      { name: "🍉❄️ Iced Watermelon", ru: "Арбуз со льдом", stock: 10, img: "watermelon_ice8.jpg" }
-    ]
-  },
-  {
-    id: "waka15000",
-    label: "🔥 WAKA 15000 — 14.990 ₸ 🔥 (ЖИДКОСТЬ ВАКА В ПОДАРОК)",
-    defaultPrice: 14990,
-    products: [
-      { name: "🌵🍋 Cactus Lemon", ru: "Кактус · Лимон", stock: 7, img: "cactus-lemon15.jpg" },
-      { name: "🌿❄️ Mint", ru: "Мята", stock: 5, img: "mint15.jpg" },
-      { name: "🍏⚡ Sour Apple", ru: "Кислое яблоко", stock: 9, img: "sour-apple15.jpg" }
-    ]
-  },
-  {
-    id: "waka20000",
-    label: "🔥 WAKA 20000 — 14.990 ₸ 🔥",
-    defaultPrice: 14990,
-    products: [
-      { name: "🍓🫐 Strawberry Raspberry", ru: "Клубника · Малина", stock: 20, img: "straberry-raspberry20.jpg" }
-    ]
-  },
-  {
-    id: "waka35000",
-    label: "🔥 WAKA 35000 — 15.990 ₸ 🔥 (ЖИДКОСТЬ ВАКА В ПОДАРОК)",
-    defaultPrice: 15990,
-    products: [
-      { name: "🍇🫐 Cranberry Grape", ru: "Клюква · Виноград", stock: 10, img: "chanberry-grape35.jpg" },
-      { name: "🍓🍇 Strawberry", ru: "Клубника · Виноград", stock: 10, img: "5247027701917357626.jpg" },
-      { name: "🖤🫐 Black Raspberry", ru: "Чёрная малина", stock: 10, img: "black-raspberry35.jpg" }
-    ]
-  },
-  {
-    id: "liquid",
-    label: "🔥 WAKA ЖИДКОСТЬ 🔥",
-    defaultPrice: 0,
-    products: [
-      { name: "🍉 Watermelon", ru: "Арбуз", stock: 20, price: 0, img: "zhizha.jpg" },
-      { name: "🫐🍒 Blackberry Blueberry Cherry", ru: "Ежевика · Черника · Вишня", stock: 30, price: 0, img: "zhizha.jpg" },
-      { name: "🥤❄️ Iced Lemon Cola", ru: "Лимонная ледяная кола", stock: 20, price: 0, img: "zhizha.jpg" },
-      { name: "🌴🍋 Hawaiian Lemonade", ru: "Гавайский лимонад", stock: 30, price: 0, img: "zhizha.jpg" },
-      { name: "🫐🍉 Blueberry Watermelon", ru: "Черника · Арбуз", stock: 30, price: 0, img: "zhizha.jpg" },
-      { name: "🍇🍬 Grape Gum", ru: "Виноградная жвачка", stock: 30, price: 0, img: "zhizha.jpg" },
-      { name: "🍓🍒 Strawberry Raspberry Cherry", ru: "Клубника · Малина · Вишня", stock: 10, price: 0, img: "zhizha.jpg" },
-      { name: "🍏⚡ Sour Apple", ru: "Кислое яблоко", stock: 10, price: 0, img: "zhizha.jpg" },
-      { name: "🍋🫐 Sour Berry Lemonade", ru: "Лимонад · Кислая ягода", stock: 30, price: 0, img: "zhizha.jpg" },
-      { name: "🥤 Sprite", ru: "Спрайт", stock: 10, price: 0, img: "zhizha.jpg" },
-      { name: "🌊🍋 Sea Salt Lemon", ru: "Морская соль · Лимон", stock: 20, price: 0, img: "zhizha.jpg" }
-    ]
-  }
+{
+id:"waka10000",
+label:"🔥 WAKA 10000 — 12.990 ₸ 🔥",
+defaultPrice:12990,
+products:[
+{ name:"🍏⚡ Sour Apple",ru:"Кислое яблоко",stock:40,img:"sour-apple10.png"},
+{ name:"🔵🫐 Mr. Blue",ru:"Черника микс",stock:100,img:"mr-blue10.png"},
+{ name:"🥝🫐 Kiwi Mulberry",ru:"Киви · Шелковица",stock:40,img:"kiwi-mulberry10.jpg"},
+{ name:"🍓💥 Lychee Burst",ru:"Личи",stock:40,img:"lychee-burst10.jpg"}
+]},
+{
+id:"waka8000",
+label:"🔥 WAKA 8000 — 10.990 ₸ 🔥",
+defaultPrice:10990,
+products:[
+{ name:"🍒 Cherry",ru:"Вишня",stock:20,img:"cherry8.jpg"},
+{ name:"🍇❄️ Iced Grape",ru:"Виноград со льдом",stock:20,img:"grape8.jpg"},
+{ name:"🍓🍉 Strawberry Watermelon",ru:"Клубника · Арбуз",stock:10,img:"straberry_watermelon8.jpg"},
+{ name:"🍏⚡ Sour Apple",ru:"Кислое яблоко",stock:20,img:"apple8.jpg"},
+{ name:"🍓 Fresh Strawberry",ru:"Свежая клубника",stock:10,img:"straberry8.jpg"},
+{ name:"🍒🍋 Cherry Lemon",ru:"Вишня · Лимон",stock:10,img:"lemon_berry8.jpg"},
+{ name:"🥭❄️ Iced Mango",ru:"Манго со льдом",stock:10,img:"iced_mango8.jpg"},
+{ name:"🍋🍃 Lemon Lime",ru:"Лимон · Лайм",stock:20,img:"lemon_lime8.jpg"},
+{ name:"🍉❄️ Iced Watermelon",ru:"Арбуз со льдом",stock:10,img:"watermelon_ice8.jpg"}
+]},
+{
+id:"waka15000",
+label:"🔥 WAKA 15000 — 14.990 ₸ 🔥",
+defaultPrice:14990,
+products:[
+{ name:"🌵🍋 Cactus Lemon",ru:"Кактус · Лимон",stock:7,img:"cactus-lemon15.jpg"},
+{ name:"🌿❄️ Mint",ru:"Мята",stock:5,img:"mint15.jpg"},
+{ name:"🍏⚡ Sour Apple",ru:"Кислое яблоко",stock:9,img:"sour-apple15.jpg"}
+]},
+{
+id:"waka20000",
+label:"🔥 WAKA 20000 — 14.990 ₸ 🔥",
+defaultPrice:14990,
+products:[
+{ name:"🍓🫐 Strawberry Raspberry",ru:"Клубника · Малина",stock:20,img:"straberry-raspberry20.jpg"}
+]},
+{
+id:"waka35000",
+label:"🔥 WAKA 35000 — 15.990 ₸ 🔥",
+defaultPrice:15990,
+products:[
+{ name:"🍇🫐 Cranberry Grape",ru:"Клюква · Виноград",stock:10,img:"chanberry-grape35.jpg"},
+{ name:"🍓🍇 Strawberry",ru:"Клубника · Виноград",stock:10,img:"5247027701917357626.jpg"},
+{ name:"🖤🫐 Black Raspberry",ru:"Чёрная малина",stock:10,img:"black-raspberry35.jpg"}
+]},
+{
+id:"liquid",
+label:"🔥 WAKA ЖИДКОСТЬ 🔥",
+defaultPrice:0,
+products:[
+{ name:"🍉 Watermelon",ru:"Арбуз",stock:20,price:0,img:"zhizha.jpg"}
+]}
 ];
 
-// остальной код без изменений...
+function closeWelcome(){
+document.getElementById("welcome").style.display="none";
+if(tg) tg.expand();
+}
+
+function buildTabs(){
+const tabs=document.getElementById("tabs");
+tabs.innerHTML="";
+CATEGORIES.forEach(c=>{
+const el=document.createElement("div");
+el.className="tab";
+el.textContent=c.id;
+el.onclick=()=>loadCategory(c.id);
+tabs.appendChild(el);
+});
+}
+
+let currentCatId;
+
+function loadCategory(id){
+currentCatId=id;
+const cat=CATEGORIES.find(c=>c.id===id);
+const box=document.getElementById("products");
+box.innerHTML="";
+cat.products.forEach((p,i)=>{
+box.innerHTML+=`
+<div class="card">
+<img class="pimg" src="${img(p.img)}">
+<div><b>${p.name}</b></div>
+<div class="small">${p.ru}</div>
+<div class="price">₸${cat.defaultPrice}</div>
+<button class="btn">В корзину</button>
+</div>`;
+});
+}
+
+buildTabs();
+loadCategory(CATEGORIES[0].id);
 </script>
 </body>
 </html>
