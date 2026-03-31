@@ -10,161 +10,114 @@
 body{font-family:Arial;margin:0;background:#f4f6f8}
 header{padding:12px;background:#fff;font-weight:700}
 .tabs{display:flex;gap:10px;padding:10px;overflow:auto;position:sticky;top:0;background:#f4f6f8;z-index:50}
-.tab{background:#e2e8f0;padding:8px 12px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.tab{background:#e2e8f0;padding:8px 12px;border-radius:10px;cursor:pointer}
 .tab.active{background:#cbd5e1;font-weight:700}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;padding-bottom:420px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;padding-bottom:200px}
 .card{background:#fff;padding:10px;border-radius:12px}
 .price{font-weight:bold;margin:6px 0}
-.btn{width:100%;padding:10px;border:0;border-radius:10px;background:#3b82f6;color:#fff;margin-top:6px;cursor:pointer}
-.btn:disabled{background:#94a3b8;cursor:not-allowed}
-.pimg{width:100%;aspect-ratio:1/1;object-fit:contain;background:#f8fafc;border-radius:12px;border:1px solid #e5e7eb;margin-bottom:8px}
-.cart{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:10px;border-top:1px solid #ccc}
-.small{font-size:12px;color:#64748b;margin-top:6px;line-height:1.35}
-.cart-list{margin-top:8px;max-height:110px;overflow:auto;border:1px solid #e5e7eb;border-radius:12px;padding:8px;background:#f8fafc}
-.cart-item{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px dashed #e5e7eb}
-.ci-btn{width:34px;height:34px;border:0;border-radius:10px;cursor:pointer;background:#e2e8f0}
-.ci-btn.del{background:#fee2e2}
-.input{width:100%;padding:10px;margin-top:8px;border-radius:10px;border:1px solid #ccc}
-.notice{margin-top:8px;padding:10px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb}
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:2000}
-.modal{background:#fff;width:92%;max-width:380px;border-radius:16px;padding:16px}
+.btn{width:100%;padding:10px;border:0;border-radius:10px;background:#3b82f6;color:#fff;margin-top:6px}
+.pimg{width:100%;aspect-ratio:1/1;object-fit:contain;background:#f8fafc;border-radius:12px;margin-bottom:8px}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:2000}
+.modal{background:#fff;width:92%;max-width:380px;border-radius:16px;padding:16px;text-align:center}
 </style>
 </head>
 
 <body>
+
 <header>Магазин</header>
 
-<div id="welcome" class="modal-backdrop" style="display:flex;z-index:2500;">
-  <div class="modal" style="text-align:center;">
-    <h3 id="welcomeText">Добро пожаловать!</h3>
+<div id="welcome" class="modal-backdrop">
+  <div class="modal">
+    <h3>Добро пожаловать!</h3>
     <p>Вы в магазине WAKA Nexa</p>
-    <button class="btn" onclick="closeWelcome()">Начать покупки</button>
+    <button class="btn" id="startBtn">Начать покупки</button>
   </div>
 </div>
 
 <div class="tabs" id="tabs"></div>
 <div class="grid" id="products"></div>
 
-<div class="cart">
-  🛒 <b><span id="count">0</span></b> · Итого: <b><span id="total">0</span> ₸</b>
-  <div class="cart-list" id="cartList"><div class="small">Корзина пуста</div></div>
-
-  <input id="phone" class="input" placeholder="Введите номер телефона" inputmode="tel">
-  <input id="address" class="input" placeholder="Введите адрес доставки">
-
-  <button class="btn" onclick="checkout()">Оформить заказ</button>
-</div>
-
 <script>
 const tg = window.Telegram?.WebApp;
 if (tg) tg.ready();
 
 const BASE_IMG = "https://raw.githubusercontent.com/didar2007/tg-miniapp/main/img1/";
-const DEFAULT_IMG = BASE_IMG + "placeholder.png";
 
-function img(fileName){
-  if (!fileName) return DEFAULT_IMG;
-  return BASE_IMG + fileName;
+function img(file){
+  return BASE_IMG + file;
 }
 
 const CATEGORIES = [
 {
 id:"waka10000",
-label:"🔥 WAKA 10000 — 12.990 ₸ 🔥",
 defaultPrice:12990,
 products:[
-{ name:"🍏⚡ Sour Apple",ru:"Кислое яблоко",stock:40,img:"sour-apple10.png"},
-{ name:"🔵🫐 Mr. Blue",ru:"Черника микс",stock:100,img:"mr-blue10.png"},
-{ name:"🥝🫐 Kiwi Mulberry",ru:"Киви · Шелковица",stock:40,img:"kiwi-mulberry10.jpg"},
-{ name:"🍓💥 Lychee Burst",ru:"Личи",stock:40,img:"lychee-burst10.jpg"}
+{ name:"🍏 Sour Apple",ru:"Кислое яблоко",img:"sour-apple10.png"},
+{ name:"🔵 Mr. Blue",ru:"Черника",img:"mr-blue10.png"},
+{ name:"🥝 Kiwi Mulberry",ru:"Киви",img:"kiwi-mulberry10.jpg"},
+{ name:"🍓 Lychee Burst",ru:"Личи",img:"lychee-burst10.jpg"}
 ]},
 {
 id:"waka8000",
-label:"🔥 WAKA 8000 — 10.990 ₸ 🔥",
 defaultPrice:10990,
 products:[
-{ name:"🍒 Cherry",ru:"Вишня",stock:20,img:"cherry8.jpg"},
-{ name:"🍇❄️ Iced Grape",ru:"Виноград со льдом",stock:20,img:"grape8.jpg"},
-{ name:"🍓🍉 Strawberry Watermelon",ru:"Клубника · Арбуз",stock:10,img:"straberry_watermelon8.jpg"},
-{ name:"🍏⚡ Sour Apple",ru:"Кислое яблоко",stock:20,img:"apple8.jpg"},
-{ name:"🍓 Fresh Strawberry",ru:"Свежая клубника",stock:10,img:"straberry8.jpg"},
-{ name:"🍒🍋 Cherry Lemon",ru:"Вишня · Лимон",stock:10,img:"lemon_berry8.jpg"},
-{ name:"🥭❄️ Iced Mango",ru:"Манго со льдом",stock:10,img:"iced_mango8.jpg"},
-{ name:"🍋🍃 Lemon Lime",ru:"Лимон · Лайм",stock:20,img:"lemon_lime8.jpg"},
-{ name:"🍉❄️ Iced Watermelon",ru:"Арбуз со льдом",stock:10,img:"watermelon_ice8.jpg"}
+{ name:"🍒 Cherry",ru:"Вишня",img:"cherry8.jpg"},
+{ name:"🍇 Iced Grape",ru:"Виноград",img:"grape8.jpg"},
+{ name:"🍓🍉 Strawberry Watermelon",ru:"Клубника Арбуз",img:"straberry_watermelon8.jpg"},
+{ name:"🍏 Sour Apple",ru:"Яблоко",img:"apple8.jpg"}
 ]},
 {
 id:"waka15000",
-label:"🔥 WAKA 15000 — 14.990 ₸ 🔥",
 defaultPrice:14990,
 products:[
-{ name:"🌵🍋 Cactus Lemon",ru:"Кактус · Лимон",stock:7,img:"cactus-lemon15.jpg"},
-{ name:"🌿❄️ Mint",ru:"Мята",stock:5,img:"mint15.jpg"},
-{ name:"🍏⚡ Sour Apple",ru:"Кислое яблоко",stock:9,img:"sour-apple15.jpg"}
+{ name:"🌵 Cactus Lemon",ru:"Кактус Лимон",img:"cactus-lemon15.jpg"},
+{ name:"🌿 Mint",ru:"Мята",img:"mint15.jpg"}
 ]},
 {
 id:"waka20000",
-label:"🔥 WAKA 20000 — 14.990 ₸ 🔥",
 defaultPrice:14990,
 products:[
-{ name:"🍓🫐 Strawberry Raspberry",ru:"Клубника · Малина",stock:20,img:"straberry-raspberry20.jpg"}
-]},
-{
-id:"waka35000",
-label:"🔥 WAKA 35000 — 15.990 ₸ 🔥",
-defaultPrice:15990,
-products:[
-{ name:"🍇🫐 Cranberry Grape",ru:"Клюква · Виноград",stock:10,img:"chanberry-grape35.jpg"},
-{ name:"🍓🍇 Strawberry",ru:"Клубника · Виноград",stock:10,img:"5247027701917357626.jpg"},
-{ name:"🖤🫐 Black Raspberry",ru:"Чёрная малина",stock:10,img:"black-raspberry35.jpg"}
-]},
-{
-id:"liquid",
-label:"🔥 WAKA ЖИДКОСТЬ 🔥",
-defaultPrice:0,
-products:[
-{ name:"🍉 Watermelon",ru:"Арбуз",stock:20,price:0,img:"zhizha.jpg"}
+{ name:"🍓 Raspberry",ru:"Малина",img:"straberry-raspberry20.jpg"}
 ]}
 ];
 
 function closeWelcome(){
-document.getElementById("welcome").style.display="none";
-if(tg) tg.expand();
+  document.getElementById("welcome").style.display="none";
 }
+
+document.getElementById("startBtn").onclick = closeWelcome;
 
 function buildTabs(){
-const tabs=document.getElementById("tabs");
-tabs.innerHTML="";
-CATEGORIES.forEach(c=>{
-const el=document.createElement("div");
-el.className="tab";
-el.textContent=c.id;
-el.onclick=()=>loadCategory(c.id);
-tabs.appendChild(el);
-});
+  const tabs=document.getElementById("tabs");
+  CATEGORIES.forEach(c=>{
+    const el=document.createElement("div");
+    el.className="tab";
+    el.innerText=c.id;
+    el.onclick=()=>loadCategory(c.id);
+    tabs.appendChild(el);
+  });
 }
 
-let currentCatId;
-
 function loadCategory(id){
-currentCatId=id;
-const cat=CATEGORIES.find(c=>c.id===id);
-const box=document.getElementById("products");
-box.innerHTML="";
-cat.products.forEach((p,i)=>{
-box.innerHTML+=`
-<div class="card">
-<img class="pimg" src="${img(p.img)}">
-<div><b>${p.name}</b></div>
-<div class="small">${p.ru}</div>
-<div class="price">₸${cat.defaultPrice}</div>
-<button class="btn">В корзину</button>
-</div>`;
-});
+  const cat=CATEGORIES.find(c=>c.id===id);
+  const box=document.getElementById("products");
+  box.innerHTML="";
+
+  cat.products.forEach(p=>{
+    box.innerHTML+=`
+    <div class="card">
+      <img class="pimg" src="${img(p.img)}">
+      <b>${p.name}</b>
+      <div>${p.ru}</div>
+      <div class="price">₸${cat.defaultPrice}</div>
+      <button class="btn">В корзину</button>
+    </div>`;
+  });
 }
 
 buildTabs();
 loadCategory(CATEGORIES[0].id);
 </script>
+
 </body>
 </html>
