@@ -34,11 +34,12 @@ header{padding:12px;background:#fff;font-weight:700}
 <body>
 <header>Магазин</header>
 
+<!-- ИСПРАВЛЕННОЕ МОДАЛЬНОЕ ОКНО -->
 <div id="welcome" class="modal-backdrop" style="display:flex;z-index:2500;">
   <div class="modal" style="text-align:center;">
     <h3 id="welcomeText">Добро пожаловать!</h3>
     <p>Вы в магазине WAKA Nexa</p>
-    <button class="btn" onclick="closeWelcome()">Начать покупки</button>
+    <button class="btn" id="startBtn" style="background:#3b82f6;">Начать покупки</button>
   </div>
 </div>
 
@@ -168,20 +169,43 @@ const CATEGORIES = [
   }
 ];
 
-// Основные функции
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ ЗАКРЫТИЯ ПРИВЕТСТВИЯ
 function closeWelcome(){
   const w = document.getElementById("welcome");
-  if (w) w.style.display = "none";
-  if (tg && typeof tg.expand === "function") tg.expand();
+  if (w) {
+    w.style.display = "none";
+    // Разблокируем прокрутку страницы
+    document.body.style.overflow = "auto";
+  }
+  if (tg && typeof tg.expand === "function") {
+    tg.expand();
+  }
 }
 
-document.getElementById("welcome").addEventListener("click", (e) => {
-  if (e.target && e.target.id === "welcome") closeWelcome();
+// Обработчик для кнопки "Начать покупки"
+document.addEventListener("DOMContentLoaded", function() {
+  const startBtn = document.getElementById("startBtn");
+  if (startBtn) {
+    startBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      closeWelcome();
+    });
+  }
+
+  // Закрытие по клику на фон
+  const welcome = document.getElementById("welcome");
+  if (welcome) {
+    welcome.addEventListener("click", function(e) {
+      if (e.target === this) {
+        closeWelcome();
+      }
+    });
+  }
 });
 
-// ИСПРАВЛЕННАЯ ФУНКЦИЯ contactAdmin
+// Функция contactAdmin (исправлена)
 function contactAdmin(){
-  const username = "kimcerato"; // Имя пользователя администратора
+  const username = "kimcerato";
   if (window.Telegram && Telegram.WebApp) {
     Telegram.WebApp.openTelegramLink("https://t.me/" + username);
   } else {
